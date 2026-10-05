@@ -1,4 +1,5 @@
-import { FeatureBanner, HeroBanner } from "@/components/catalog/HeroBanner";
+import { FeatureBanner } from "@/components/catalog/HeroBanner";
+import { HeroSlider } from "@/components/catalog/HeroSlider";
 import { GenreSection } from "@/components/catalog/GenreSection";
 import { HeroCarousel, MobileTopBar, RecommendedGrid, StarredCard, Top10Row } from "@/components/catalog/MobileHome";
 import { TitleRow } from "@/components/catalog/TitleRow";
@@ -18,11 +19,10 @@ export default async function HomePage() {
     priceMnt: h.priceMnt,
   }));
   const featuredFirst = [...all].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
-  const hero = featuredFirst[0];
   const latest = all; // already newest first
   const series = all.filter((t) => t.vertical);
   const films = all.filter((t) => !t.vertical);
-  const spotlight = featuredFirst[1] ?? hero;
+  const spotlight = featuredFirst[1] ?? featuredFirst[0];
 
   return (
     <>
@@ -49,7 +49,7 @@ export default async function HomePage() {
 
       {/* Desktop (Figma "Home", 1440 wide, 1088 content) */}
       <div className="mx-auto hidden max-w-[1120px] flex-col gap-10 px-4 pt-6 md:flex">
-        <HeroBanner t={hero} />
+        <HeroSlider items={featuredFirst.slice(0, 5)} />
         {continueItems.length > 0 && <TitleRow title="Үргэлжлүүлэн үзэх" href="/history" items={continueItems} />}
         <TitleRow title="Онцлох бүтээлүүд" href="/search" items={featuredFirst.slice(0, 10)} />
         <TitleRow title="Сүүлд гарсан" href="/search" items={latest} />

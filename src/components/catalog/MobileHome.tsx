@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconBell, IconPlayLarge, IconSearch } from "@/components/ui/icons";
 import { HScroll, SectionHeader } from "./Section";
 import { Poster, TitleCard, type TitleCardData } from "./TitleCard";
@@ -27,12 +27,28 @@ export function MobileTopBar() {
 export function HeroCarousel({ items }: { items: TitleCardData[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const touching = useRef(false);
+
+  // Auto-advance every 5s; stops while a finger is on the carousel.
+  useEffect(() => {
+    if (items.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setTimeout(() => {
+      const el = ref.current;
+      if (!el || touching.current) return;
+      const next = (index + 1) % items.length;
+      el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [index, items.length]);
 
   return (
     <section className="flex flex-col items-center gap-4 md:hidden">
       <div className="relative w-full">
         <div
           ref={ref}
+          onTouchStart={() => (touching.current = true)}
+          onTouchEnd={() => (touching.current = false)}
           onScroll={(e) => {
             const el = e.currentTarget;
             setIndex(Math.round(el.scrollLeft / el.clientWidth));

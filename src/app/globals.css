@@ -61,3 +61,8 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-stroke);
 }
+
+@keyframes hero-progress {
+  from { width: 0; }
+  to { width: 100%; }
+}

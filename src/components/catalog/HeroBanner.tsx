@@ -42,7 +42,7 @@ export function HeroButtons({ slug }: { slug: string }) {
   );
 }
 
-function Backdrop({ t, dim = false }: { t: TitleCardData; dim?: boolean }) {
+export function Backdrop({ t, dim = false }: { t: TitleCardData; dim?: boolean }) {
   const h = t.hue ?? 250;
   return (
     <div
