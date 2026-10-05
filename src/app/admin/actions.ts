@@ -75,6 +75,7 @@ export async function saveTitle(_prev: TitleFormState, form: FormData): Promise<
     slug,
     name: d.name,
     nameOriginal: d.nameOriginal,
+    searchText: `${d.name} ${d.nameOriginal ?? ""}`.toLocaleLowerCase("mn").trim(),
     description: d.description,
     type: d.type,
     orientation: d.orientation,

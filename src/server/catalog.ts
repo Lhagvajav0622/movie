@@ -71,3 +71,30 @@ export async function listEpisodesAdmin(titleId: string) {
 }
 
 export { and };
+
+/** Search published titles by name / original name, optionally within one genre (by Mongolian name). */
+export async function searchTitles(q: string, genre: string | null, limit = 60) {
+  const conds = [eq(titles.status, "published")];
+  const term = q.trim();
+  if (term) {
+    const like = `%${term.toLocaleLowerCase("mn").replace(/[%_\\]/g, (c) => `\\${c}`)}%`;
+    conds.push(sql`${titles.searchText} LIKE ${like}`);
+  }
+  if (genre) {
+    conds.push(
+      sql`${titles.id} IN (SELECT ${titleGenres.titleId} FROM ${titleGenres} JOIN ${genres} ON ${genres.id} = ${titleGenres.genreId} WHERE ${genres.nameMn} = ${genre})`,
+    );
+  }
+  const rows = await db
+    .select()
+    .from(titles)
+    .where(and(...conds))
+    .orderBy(desc(titles.isFeatured), desc(titles.publishedAt))
+    .limit(limit);
+  return attachGenres(rows);
+}
+
+export async function countPublished() {
+  const [r] = await db.select({ n: sql<number>`count(*)::int` }).from(titles).where(eq(titles.status, "published"));
+  return r?.n ?? 0;
+}

@@ -115,6 +115,8 @@ export const titles = pgTable(
     slug: text("slug").notNull().unique(),
     name: text("name").notNull(),
     nameOriginal: text("name_original"),
+    /** Lower-cased "name name_original", written by the app (works for Cyrillic in any DB locale) */
+    searchText: text("search_text").notNull().default(""),
     description: text("description"),
     type: titleType("type").notNull().default("film"),
     orientation: orientation("orientation").notNull().default("horizontal"),
