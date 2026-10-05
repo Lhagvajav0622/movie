@@ -86,3 +86,19 @@ export const IconBookmark = ({ className, size = 24 }: P) => (
     <path d="M6.75 4.75h10.5a1 1 0 0 1 1 1V20l-6.25-4-6.25 4V5.75a1 1 0 0 1 1-1Z" />
   </svg>
 );
+
+export const IconArrowLeft = ({ className, size = 24 }: P) => (
+  <Svg size={size} view={24} className={className}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M4.25 12C4.25 11.5858 4.58579 11.25 5 11.25H19C19.4142 11.25 19.75 11.5858 19.75 12C19.75 12.4142 19.4142 12.75 19 12.75H5C4.58579 12.75 4.25 12.4142 4.25 12Z" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M10.5303 6.46967C10.8232 6.76256 10.8232 7.23744 10.5303 7.53033L5.53033 12.5303C5.23744 12.8232 4.76256 12.8232 4.46967 12.5303C4.17678 12.2374 4.17678 11.7626 4.46967 11.4697L9.46967 6.46967C9.76256 6.17678 10.2374 6.17678 10.5303 6.46967Z" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M4.46967 11.4697C4.76256 11.1768 5.23744 11.1768 5.53033 11.4697L10.5303 16.4697C10.8232 16.7626 10.8232 17.2374 10.5303 17.5303C10.2374 17.8232 9.76256 17.8232 9.46967 17.5303L4.46967 12.5303C4.17678 12.2374 4.17678 11.7626 4.46967 11.4697Z" />
+  </Svg>
+);
+
+/** Small lock for paid episodes (not in the Figma set; matches its 1.5px outline style). */
+export const IconLock = ({ className, size = 16 }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden className={className}>
+    <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+    <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+  </svg>
+);
