@@ -62,4 +62,12 @@ export async function slugTaken(slug: string, exceptId?: string) {
   return rows.length > 0 && rows[0].id !== exceptId;
 }
 
+export async function listEpisodesAdmin(titleId: string) {
+  return db
+    .select({ id: episodes.id, number: episodes.number, durationSec: episodes.durationSec, status: episodes.status })
+    .from(episodes)
+    .where(eq(episodes.titleId, titleId))
+    .orderBy(episodes.number);
+}
+
 export { and };

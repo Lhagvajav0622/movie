@@ -7,10 +7,11 @@
     "build": "tsx scripts/migrate.ts && tsx scripts/seed.ts && next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test src/**/*.test.ts",
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"worker/**/*.test.js\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "video": "tsx scripts/upload-video.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
@@ -26,9 +27,11 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
     "@electric-sql/pglite": "^0.5.8",
     "@electric-sql/pglite-socket": "^0.2.11",
     "@tailwindcss/postcss": "^4",
+    "@types/ffprobe-static": "^2.0.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -36,6 +39,8 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"

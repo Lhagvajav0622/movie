@@ -161,7 +161,10 @@ export const episodes = pgTable(
       .references(() => titles.id, { onDelete: "cascade" }),
     number: integer("number").notNull(),
     name: text("name"),
-    bunnyVideoId: text("bunny_video_id"),
+    /** R2 key prefix of the HLS package, e.g. "v/<episodeId>" (master.m3u8 inside) */
+    videoKey: text("video_key"),
+    /** Seconds per HLS segment (needed to enforce the free-preview limit) */
+    segmentSec: integer("segment_sec").notNull().default(6),
     durationSec: integer("duration_sec").notNull().default(0),
     thumbnailUrl: text("thumbnail_url"),
     status: episodeStatus("status").notNull().default("processing"),

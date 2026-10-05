@@ -49,3 +49,33 @@ scripts/seed.ts
 - Each title has its own price (`price_mnt`, 0 = free); a purchase gives lifetime access.
 - Unpaid viewers get `free_preview_sec` (default 300 s), counted from episode 1 for series.
 - Payment phase A: bank transfer with order code, admin approves. Phase B: QPay.
+
+## Video (Cloudflare R2 + Worker)
+
+Videos are encoded to HLS on your computer, stored in R2 and served by the Worker in `worker/`,
+which checks a signed, expiring URL and enforces the free preview (playlists cut, later segments refused).
+Cloudflare has a PoP in Ulaanbaatar and R2 has no egress fees.
+
+One-time setup:
+
+1. Cloudflare dashboard → R2 → create bucket `mhub-videos`.
+2. R2 → Manage API tokens → create token with *Object Read & Write* on that bucket.
+   Put `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` in your local `.env`.
+3. Deploy the Worker:
+   ```bash
+   cd worker
+   npx wrangler login
+   npx wrangler deploy
+   npx wrangler secret put SIGNING_SECRET   # any long random string
+   ```
+4. In Vercel set `VIDEO_BASE_URL` (the workers.dev URL printed by deploy) and
+   `VIDEO_SIGNING_SECRET` (same value as SIGNING_SECRET). Redeploy.
+
+Upload episodes (title must exist in /admin first):
+
+```bash
+npm run video -- --title <slug> --dir "C:\videos\drama"            # ep1.mp4, ep2.mp4, ...
+npm run video -- --title <slug> --episode 1 --file "C:\videos\film.mp4"
+```
+
+Local test without Cloudflare: `STORE=<folder> node worker/local-dev.mjs` serves a folder like R2.

@@ -181,7 +181,7 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
 
         <section className="space-y-4 rounded-2xl border border-stroke p-5">
           <h2 className="text-body font-semibold">Зураг</h2>
-          <L label="Постер (холбоос)" hint="2:3 харьцаатай. Зураг байршуулах боломж Bunny холбогдсоны дараа нэмэгдэнэ.">
+          <L label="Постер (холбоос)" hint="2:3 харьцаатай зургийн холбоос.">
             <input
               name="posterUrl"
               type="url"

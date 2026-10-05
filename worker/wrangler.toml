@@ -1,0 +1,14 @@
+name = "mhub-video"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "mhub-videos"
+
+[vars]
+# Comma separated site origins allowed to play video, e.g. "https://movie-nu-brown.vercel.app"
+ALLOWED_ORIGINS = "*"
+
+# Secret (set with: npx wrangler secret put SIGNING_SECRET)
+# SIGNING_SECRET must equal VIDEO_SIGNING_SECRET in the Vercel project.
