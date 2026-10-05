@@ -3,9 +3,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { phoneNumber } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { headers } from "next/headers";
 import { db, schema } from "./db";
 import { sendSms, normalizeMnPhone } from "./sms";
+import { reserveOtpSend } from "./otp-throttle";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -38,10 +40,21 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     storage: "database",
+    // Per-IP limits are loose on purpose (carrier NAT); per-phone limits are in hooks.before.
     customRules: {
-      "/phone-number/send-otp": { window: 60, max: 1 },
-      "/phone-number/request-password-reset": { window: 60, max: 1 },
+      "/phone-number/send-otp": { window: 600, max: 20 },
+      "/phone-number/request-password-reset": { window: 600, max: 20 },
+      "/sign-in/phone-number": { window: 60, max: 10 },
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/phone-number/send-otp" && ctx.path !== "/phone-number/request-password-reset") return;
+      const phone = normalizeMnPhone(String(ctx.body?.phoneNumber ?? ""));
+      if (!phone) throw new APIError("BAD_REQUEST", { code: "INVALID_PHONE_NUMBER", message: "Invalid phone number" });
+      const wait = await reserveOtpSend(phone);
+      if (wait) throw new APIError("TOO_MANY_REQUESTS", { code: "TOO_MANY_REQUESTS", message: `Retry in ${wait}s` });
+    }),
   },
   plugins: [
     phoneNumber({

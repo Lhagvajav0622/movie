@@ -37,7 +37,10 @@ export function HeroBanner({
               href={`/title/${slug}`}
               className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-500 px-8 font-semibold hover:bg-brand-400"
             >
-              Тоглуулах ▷
+              Тоглуулах
+              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
+                <path d="M7 4.5v15l12-7.5z" />
+              </svg>
             </Link>
             <button
               aria-label="Хадгалах"

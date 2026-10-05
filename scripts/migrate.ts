@@ -14,7 +14,7 @@ async function main() {
     console.log("[migrate] DATABASE_URL not set, skipping");
     return;
   }
-  const client = postgres(url, { max: 1, connect_timeout: 15 });
+  const client = postgres(url, { max: 1, connect_timeout: 15, onnotice: () => {} });
   await migrate(drizzle(client), { migrationsFolder: "./drizzle" });
   await client.end();
   console.log("[migrate] database is up to date");

@@ -77,6 +77,17 @@ export const rateLimit = pgTable("rate_limit", {
   lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
+/** Log of SMS codes sent, for per-phone limits (1/min, 5/hour). */
+export const otpSends = pgTable(
+  "otp_sends",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    phone: text("phone").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("otp_sends_phone_created_idx").on(t.phone, t.createdAt)],
+);
+
 /* ------------------------------------------------------------------ */
 /* Catalog                                                             */
 /* ------------------------------------------------------------------ */
