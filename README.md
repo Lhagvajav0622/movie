@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mhub — MVP
 
-## Getting Started
+Mongolian movie and vertical-drama streaming platform. Next.js (App Router) + Postgres (Drizzle) + Better Auth + Bunny Stream.
 
-First, run the development server:
+Architecture proposal: see the "Mhub MVP — Архитектурын санал" doc.
+
+## Run locally
 
 ```bash
+cp .env.example .env.local   # fill DATABASE_URL and BETTER_AUTH_SECRET at least
+npm install
+npm run db:migrate           # create tables
+npm run db:seed              # genres
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In development, SMS codes are printed to the terminal (no SMS provider needed).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Make yourself admin after signing up once:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run db:seed -- --admin +976XXXXXXXX
+```
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` | Production build |
+| `npm test` | Unit tests (access rules) |
+| `npm run db:generate` | New migration from `src/server/db/schema.ts` |
+| `npm run db:migrate` | Apply migrations |
+| `npm run db:seed` | Seed genres / promote admin |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/app/(main)      pages with header + bottom nav
+src/app/api         route handlers (auth, later: play, orders, webhooks)
+src/components      layout/, catalog/, player/, payment/
+src/server          db, auth, access rules, sms, bunny
+drizzle/            SQL migrations
+scripts/seed.ts
+```
 
-## Deploy on Vercel
+## Business rules
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Each title has its own price (`price_mnt`, 0 = free); a purchase gives lifetime access.
+- Unpaid viewers get `free_preview_sec` (default 300 s), counted from episode 1 for series.
+- Payment phase A: bank transfer with order code, admin approves. Phase B: QPay.
