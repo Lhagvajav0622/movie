@@ -11,7 +11,7 @@ export function EpisodeList({ slug, episodes, hue }: { slug: string; episodes: E
     return <p className="text-body-2 text-fg-muted">Анги удахгүй нэмэгдэнэ.</p>;
   }
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-x-8">
       {episodes.map((e) => (
         <li key={e.id}>
           <Link href={`/watch/${slug}/${e.number}`} className="group flex items-start gap-2 md:gap-4">

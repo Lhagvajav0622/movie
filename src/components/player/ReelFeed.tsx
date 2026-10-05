@@ -62,6 +62,8 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
 
   return (
     <div className="fixed inset-0 z-50 bg-black">
+      {/* Desktop: a centered 9:16 "phone" stage; mobile: full screen */}
+      <div className="relative mx-auto h-dvh w-full md:max-w-[calc(100dvh*9/16)] md:overflow-hidden">
       <div ref={scroller} className="no-scrollbar h-dvh snap-y snap-mandatory overflow-y-auto">
         {episodes.map((ep, i) => (
           <section key={ep.id} data-index={i} className="relative flex h-dvh snap-start snap-always items-center justify-center">
@@ -155,6 +157,29 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
           </div>
         </div>
       )}
+      </div>
+
+      {/* Desktop only: previous / next episode */}
+      <div className="absolute right-8 top-1/2 hidden -translate-y-1/2 flex-col gap-3 md:flex">
+        <button
+          type="button"
+          aria-label="Өмнөх анги"
+          disabled={active <= 0}
+          onClick={() => goTo(active - 1)}
+          className="glass grid size-12 place-items-center rounded-full disabled:opacity-30"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 15 6-6 6 6" /></svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Дараагийн анги"
+          disabled={active >= episodes.length - 1}
+          onClick={() => goTo(active + 1)}
+          className="glass grid size-12 place-items-center rounded-full disabled:opacity-30"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+      </div>
     </div>
   );
 }
