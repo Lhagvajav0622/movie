@@ -8,7 +8,7 @@ bucket_name = "mhub-videos"
 
 [vars]
 # Comma separated site origins allowed to play video, e.g. "https://movie-nu-brown.vercel.app"
-ALLOWED_ORIGINS = "*"
+ALLOWED_ORIGINS = "https://movie-nu-brown.vercel.app"
 
 # Secret (set with: npx wrangler secret put SIGNING_SECRET)
 # SIGNING_SECRET must equal VIDEO_SIGNING_SECRET in the Vercel project.

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePlayback, playWithSound } from "./usePlayback";
 import { PlayerOverlay } from "./PlayerOverlay";
+import { PlayerControls } from "./PlayerControls";
 import { IconArrowLeft, IconLock, IconPlayLarge } from "@/components/ui/icons";
 import type { EpisodeView } from "@/server/title";
 
@@ -217,6 +218,13 @@ function ReelItem({
             <IconPlayLarge />
           </span>
         </div>
+      )}
+      {state.status === "ready" && active && (
+        <PlayerControls
+          videoRef={videoRef}
+          limitSec={state.info.access === "preview" ? state.info.allowedSec : null}
+          className="absolute inset-x-4 bottom-[88px] z-10 md:left-1/2 md:right-auto md:w-[520px] md:-translate-x-1/2"
+        />
       )}
       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/15">
         <div className="h-full bg-brand-400" style={{ width: `${progress * 100}%` }} />
