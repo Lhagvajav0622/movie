@@ -82,8 +82,18 @@ export async function getSession() {
   return auth.api.getSession({ headers: await headers() });
 }
 
+/** Phones listed in ADMIN_PHONES (comma separated, +976XXXXXXXX) are admins without a DB change. */
+function isAdminUser(u: { role?: string | null; phoneNumber?: string | null }) {
+  if (u.role === "admin") return true;
+  const list = (process.env.ADMIN_PHONES ?? "")
+    .split(",")
+    .map((p) => normalizeMnPhone(p.trim()))
+    .filter(Boolean);
+  return Boolean(u.phoneNumber && list.includes(u.phoneNumber));
+}
+
 export async function requireAdmin() {
   const s = await getSession();
-  if (!s || (s.user as { role?: string }).role !== "admin") return null;
+  if (!s || !isAdminUser(s.user as { role?: string; phoneNumber?: string })) return null;
   return s;
 }

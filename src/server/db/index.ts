@@ -9,7 +9,7 @@ const url = process.env.DATABASE_URL ?? "postgres://missing-database-url@localho
 
 // Reuse one connection pool across hot reloads in dev.
 const globalForDb = globalThis as unknown as { pg?: ReturnType<typeof postgres> };
-const client = globalForDb.pg ?? postgres(url, { max: 5, prepare: false });
+const client = globalForDb.pg ?? postgres(url, { max: Number(process.env.DB_POOL_MAX ?? 5), prepare: false });
 if (process.env.NODE_ENV !== "production") globalForDb.pg = client;
 
 export const db = drizzle(client, { schema });
