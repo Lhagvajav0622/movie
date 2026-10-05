@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { authErrorMn, isValidMnDigits, toE164 } from "@/lib/auth-errors";
-import { Button, Field, OtpInput, PhoneInput, TextInput } from "@/components/ui/form";
+import { Button, DevCodeNotice, Field, OtpInput, PhoneInput, TextInput, readDevCode } from "@/components/ui/form";
 
 type Step = "phone" | "code" | "password" | "name";
 const steps: Step[] = ["phone", "code", "password", "name"];
@@ -25,10 +25,14 @@ export function SignupFlow({ next }: { next: string }) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   async function sendCode() {
-    const { error } = await authClient.phoneNumber.sendOtp({ phoneNumber: toE164(phone) });
+    const { data, error } = await authClient.phoneNumber.sendOtp({ phoneNumber: toE164(phone) });
     if (error) throw error;
+    const dc = readDevCode(data);
+    setDevCode(dc);
+    if (dc) setCode(dc);
   }
 
   async function submit(e: React.FormEvent) {
@@ -95,6 +99,7 @@ export function SignupFlow({ next }: { next: string }) {
           <Field label={`+976 ${phone} дугаарт илгээсэн 6 оронтой код`}>
             <OtpInput value={code} onChange={setCode} />
           </Field>
+          <DevCodeNotice code={devCode} />
           <button
             type="button"
             className="text-caption text-fg-muted hover:text-fg"

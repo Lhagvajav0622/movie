@@ -105,3 +105,19 @@ export function Button({
     </button>
   );
 }
+
+/** Shown only while no SMS provider is configured: the server returns the code for testing. */
+export function DevCodeNotice({ code }: { code: string | null }) {
+  if (!code) return null;
+  return (
+    <p className="rounded-lg border border-brand-400/40 bg-brand-500/10 px-3 py-2 text-body-2 text-brand-100">
+      Туршилтын горим: таны код <b className="tracking-widest text-white">{code}</b>
+    </p>
+  );
+}
+
+/** Reads the demo code from a Better Auth response, if present. */
+export function readDevCode(data: unknown): string | null {
+  const c = (data as { devCode?: unknown } | null)?.devCode;
+  return typeof c === "string" ? c : null;
+}

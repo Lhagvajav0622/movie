@@ -8,6 +8,10 @@ import { headers } from "next/headers";
 import { db, schema } from "./db";
 import { sendSms, normalizeMnPhone } from "./sms";
 import { reserveOtpSend } from "./otp-throttle";
+import { desc, eq } from "drizzle-orm";
+
+/** True while no SMS gateway is configured (codes are shown on screen). Set OTP_DEMO=0 to force off. */
+export const otpDemoMode = () => !process.env.SMS_API_URL && process.env.OTP_DEMO !== "0";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -54,6 +58,25 @@ export const auth = betterAuth({
       if (!phone) throw new APIError("BAD_REQUEST", { code: "INVALID_PHONE_NUMBER", message: "Invalid phone number" });
       const wait = await reserveOtpSend(phone);
       if (wait) throw new APIError("TOO_MANY_REQUESTS", { code: "TOO_MANY_REQUESTS", message: `Retry in ${wait}s` });
+    }),
+    // Demo mode: until an SMS provider is configured, return the code in the response
+    // so testers can sign up. Turned off automatically once SMS_API_URL is set.
+    after: createAuthMiddleware(async (ctx) => {
+      if (!otpDemoMode()) return;
+      const isSend = ctx.path === "/phone-number/send-otp";
+      const isReset = ctx.path === "/phone-number/request-password-reset";
+      if (!isSend && !isReset) return;
+      const phone = normalizeMnPhone(String(ctx.body?.phoneNumber ?? ""));
+      if (!phone) return;
+      const identifier = isReset ? `${phone}-request-password-reset` : phone;
+      const [row] = await db
+        .select({ value: schema.verification.value })
+        .from(schema.verification)
+        .where(eq(schema.verification.identifier, identifier))
+        .orderBy(desc(schema.verification.createdAt))
+        .limit(1);
+      const devCode = row?.value.split(":")[0];
+      if (devCode) return ctx.json({ status: true, devCode });
     }),
   },
   plugins: [

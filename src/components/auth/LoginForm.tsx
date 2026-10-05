@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { authErrorMn, isValidMnDigits, toE164 } from "@/lib/auth-errors";
-import { Button, Field, OtpInput, PhoneInput, TextInput } from "@/components/ui/form";
+import { Button, DevCodeNotice, Field, OtpInput, PhoneInput, TextInput, readDevCode } from "@/components/ui/form";
 
 type Mode = "password" | "otp-phone" | "otp-code";
 
@@ -16,6 +16,7 @@ export function LoginForm({ next, googleEnabled }: { next: string; googleEnabled
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   const done = () => {
     router.replace(next);
@@ -34,8 +35,11 @@ export function LoginForm({ next, googleEnabled }: { next: string; googleEnabled
         return done();
       }
       if (mode === "otp-phone") {
-        const { error } = await authClient.phoneNumber.sendOtp({ phoneNumber: toE164(phone) });
+        const { data, error } = await authClient.phoneNumber.sendOtp({ phoneNumber: toE164(phone) });
         if (error) return setError(authErrorMn(error));
+        const dc = readDevCode(data);
+        setDevCode(dc);
+        if (dc) setCode(dc);
         return setMode("otp-code");
       }
       const { error } = await authClient.phoneNumber.verify({ phoneNumber: toE164(phone), code });
@@ -73,6 +77,7 @@ export function LoginForm({ next, googleEnabled }: { next: string; googleEnabled
           <OtpInput value={code} onChange={setCode} />
         </Field>
       )}
+      {mode === "otp-code" && <DevCodeNotice code={devCode} />}
 
       <div className="flex justify-between text-caption text-fg-muted">
         <Link href="/reset-password" className="hover:text-fg">

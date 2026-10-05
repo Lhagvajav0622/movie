@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { authErrorMn, isValidMnDigits, toE164 } from "@/lib/auth-errors";
-import { Button, Field, OtpInput, PhoneInput, TextInput } from "@/components/ui/form";
+import { Button, DevCodeNotice, Field, OtpInput, PhoneInput, TextInput, readDevCode } from "@/components/ui/form";
 
 export function ResetFlow() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export function ResetFlow() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,8 +23,11 @@ export function ResetFlow() {
     setLoading(true);
     try {
       if (step === "phone") {
-        const { error } = await authClient.phoneNumber.requestPasswordReset({ phoneNumber: toE164(phone) });
+        const { data, error } = await authClient.phoneNumber.requestPasswordReset({ phoneNumber: toE164(phone) });
         if (error) return setError(authErrorMn(error));
+        const dc = readDevCode(data);
+        setDevCode(dc);
+        if (dc) setCode(dc);
         setStep("reset");
         return;
       }
@@ -57,6 +61,7 @@ export function ResetFlow() {
           <Field label={`+976 ${phone} дугаарт илгээсэн код`}>
             <OtpInput value={code} onChange={setCode} />
           </Field>
+          <DevCodeNotice code={devCode} />
           <Field label="Шинэ нууц үг" required>
             <TextInput
               type="password"
