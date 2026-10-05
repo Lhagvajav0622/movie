@@ -1,55 +1,91 @@
 import Link from "next/link";
+import { IconPlay, IconPlus } from "@/components/ui/icons";
+import type { TitleCardData } from "./TitleCard";
 
-export function HeroBanner({
-  slug,
-  name,
-  meta,
-  description,
-  backdropUrl,
-  hue = 250,
-}: {
-  slug: string;
-  name: string;
-  meta: string;
-  description?: string;
-  backdropUrl?: string | null;
-  hue?: number;
-}) {
+export function formatDuration(sec?: number | null) {
+  if (!sec) return null;
+  const h = Math.floor(sec / 3600);
+  const m = Math.round((sec % 3600) / 60);
+  return h ? `${h}ц ${m}м` : `${m}м`;
+}
+
+export function MetaInfo({ t }: { t: TitleCardData }) {
+  const parts = [t.year, formatDuration(t.durationSec), t.ageRating, "HD"].filter(Boolean);
   return (
-    <section className="px-4 pt-2 md:px-10">
-      <div
-        className="relative flex aspect-[4/5] items-end overflow-hidden rounded-2xl shadow-glow sm:aspect-[16/9] md:aspect-[21/9]"
-        style={{
-          background: backdropUrl
-            ? `url(${backdropUrl}) center/cover`
-            : `linear-gradient(135deg, hsl(${hue} 40% 30%), hsl(${(hue + 60) % 360} 35% 10%))`,
-        }}
+    <div className="flex items-center gap-2 text-body font-medium tracking-[0.2px]">
+      {parts.map((p) => (
+        <span key={String(p)}>{p}</span>
+      ))}
+    </div>
+  );
+}
+
+/** Play (264 wide) + add buttons from the Figma "Buttons" group. */
+export function HeroButtons({ slug }: { slug: string }) {
+  return (
+    <div className="flex items-center gap-4">
+      <Link
+        href={`/title/${slug}`}
+        className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] transition hover:bg-brand-400"
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-        <div className="relative max-w-xl p-5 md:p-10">
-          <h1 className="text-h4 font-bold md:text-h1">{name}</h1>
-          <p className="mt-2 text-body-2 text-fg-muted">{meta}</p>
-          {description && (
-            <p className="mt-3 line-clamp-3 hidden text-body-2 text-fg-muted md:block">{description}</p>
-          )}
-          <div className="mt-5 flex gap-3">
-            <Link
-              href={`/title/${slug}`}
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-500 px-8 font-semibold hover:bg-brand-400"
-            >
-              Тоглуулах
-              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
-                <path d="M7 4.5v15l12-7.5z" />
-              </svg>
-            </Link>
-            <button
-              aria-label="Хадгалах"
-              className="grid size-11 place-items-center rounded-lg bg-brand-500/90 text-xl hover:bg-brand-400"
-            >
-              +
-            </button>
-          </div>
-        </div>
+        Тоглуулах
+        <IconPlay />
+      </Link>
+      <button
+        type="button"
+        aria-label="Хадгалах"
+        className="rounded-lg border-[1.5px] border-brand-300 bg-brand-400 p-4 transition hover:bg-brand-500"
+      >
+        <IconPlus />
+      </button>
+    </div>
+  );
+}
+
+function Backdrop({ t, dim = false }: { t: TitleCardData; dim?: boolean }) {
+  const h = t.hue ?? 250;
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0"
+      style={{
+        background: t.backdropUrl
+          ? `url(${t.backdropUrl}) center/cover`
+          : `linear-gradient(120deg, hsl(${h} 35% 28%), hsl(${(h + 50) % 360} 30% 10%))`,
+        opacity: dim ? 0.2 : 1,
+      }}
+    />
+  );
+}
+
+/** Desktop "SuggestedMovie": 458px tall, radius 8, brand glow. */
+export function HeroBanner({ t }: { t: TitleCardData }) {
+  return (
+    <section className="relative hidden h-[458px] flex-col justify-end overflow-hidden rounded-lg p-6 shadow-hero md:flex">
+      <Backdrop t={t} />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+      <div className="relative flex flex-col gap-4">
+        <h1 className="text-h1 font-bold">{t.name}</h1>
+        <MetaInfo t={t} />
+        <HeroButtons slug={t.slug} />
+      </div>
+    </section>
+  );
+}
+
+/** Desktop "Movie" feature block (488px, dimmed backdrop, description). */
+export function FeatureBanner({ t }: { t: TitleCardData }) {
+  return (
+    <section className="relative hidden h-[488px] overflow-hidden md:block">
+      <Backdrop t={t} dim />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_53.67%,rgba(0,0,0,0.69)_77.31%,#000_87.78%)]" />
+      <div className="absolute left-6 top-[194px] flex w-[710px] flex-col gap-4">
+        <h2 className="text-h1 font-bold">{t.name}</h2>
+        <MetaInfo t={t} />
+        {t.description && (
+          <p className="line-clamp-3 text-body font-medium tracking-[0.2px] text-fg-muted">{t.description}</p>
+        )}
+        <HeroButtons slug={t.slug} />
       </div>
     </section>
   );

@@ -1,33 +1,32 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { IconBookmark, IconHome, IconUser } from "@/components/ui/icons";
 
 const items = [
-  { href: "/", label: "Нүүр", d: "M3 11 12 4l9 7v9H3z" },
-  { href: "/search", label: "Хайх", d: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm9 16-4.35-4.35" },
-  { href: "/saved", label: "Хадгалсан", d: "M6 3h12v18l-6-4-6 4z" },
-  { href: "/profile", label: "Профайл", d: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" },
+  { href: "/", label: "Нүүр", Icon: IconHome },
+  { href: "/saved", label: "Хадгалсан", Icon: IconBookmark },
+  { href: "/profile", label: "Хэрэглэгч", Icon: IconUser },
 ];
 
+/** Floating frosted tab bar from the mobile Figma (351×67, radius 16). */
 export function BottomNav() {
   const path = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-stroke bg-black/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-      <ul className="grid grid-cols-4">
-        {items.map((it) => {
-          const active = it.href === "/" ? path === "/" : path.startsWith(it.href);
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-[19.5px] pb-[max(21px,env(safe-area-inset-bottom))] md:hidden">
+      <ul className="glass flex h-[67px] w-full max-w-[351px] items-center justify-center gap-[23px] rounded-2xl">
+        {items.map(({ href, label, Icon }) => {
+          const active = href === "/" ? path === "/" : path.startsWith(href);
           return (
-            <li key={it.href}>
+            <li key={href}>
               <Link
-                href={it.href}
-                className={`flex flex-col items-center gap-1 py-2 text-caption ${
-                  active ? "text-brand-300" : "text-fg-subtle"
+                href={href}
+                className={`flex h-[67px] w-[70px] flex-col items-center justify-center gap-1 py-3 ${
+                  active ? "text-brand-500" : "text-fg-muted"
                 }`}
               >
-                <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round">
-                  <path d={it.d} />
-                </svg>
-                {it.label}
+                <Icon />
+                <span className="text-[10px] font-medium leading-3">{label}</span>
               </Link>
             </li>
           );

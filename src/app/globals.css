@@ -9,12 +9,16 @@
   --color-fg: #ffffff;
   --color-fg-muted: #c7c7c7;
   --color-fg-subtle: #8a8a8e;
+  --color-brand-50: #e4dfff;
+  --color-brand-100: #d3cbfe;
+  --color-brand-200: #b7acf6;
   --color-brand-300: #9182e5;
   --color-brand-400: #7463d5;
   --color-brand-500: #5e49d5;
   --color-danger: #ef4444;
 
   --font-sans: "Manrope Variable", system-ui, sans-serif;
+  --font-display: "Gabarito", "Manrope Variable", sans-serif;
 
   /* Typography scale (size / line-height) */
   --text-h1: 40px;
@@ -28,7 +32,8 @@
   --text-caption: 12px;
   --text-caption--line-height: 18px;
 
-  --shadow-glow: 0 0 76px -4px var(--color-brand-500);
+  --shadow-glow: 0 0 76.2px -4px var(--color-brand-500);
+  --shadow-hero: 0 0 76.2px 0 var(--color-brand-500);
 }
 
 html {
@@ -47,4 +52,12 @@ body {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Frosted panels from the mobile Figma (bottom nav, carousel play button) */
+.glass {
+  background: rgba(30, 28, 28, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-stroke);
 }
