@@ -119,7 +119,7 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
             </Link>
             <SaveButton titleId={t.id} slug={t.slug} initial={t.saved} variant="tab" disabled={t.isDemo} />
           </div>
-          {needsPurchase && <BuyButton priceMnt={t.priceMnt} className="h-11 w-full text-[13px]" />}
+          {needsPurchase && <BuyButton titleId={t.id} priceMnt={t.priceMnt} className="h-11 w-full text-[13px]" />}
           {t.type === "series" ? (
             <DetailTabs
               tabs={[
@@ -161,7 +161,7 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
                 <IconPlay />
               </Link>
               <SaveButton titleId={t.id} slug={t.slug} initial={t.saved} variant="icon" disabled={t.isDemo} />
-              {needsPurchase && <BuyButton priceMnt={t.priceMnt} className="h-[59px] px-6 text-[15px]" />}
+              {needsPurchase && <BuyButton titleId={t.id} priceMnt={t.priceMnt} className="h-[59px] px-6 text-[15px]" />}
             </div>
           </div>
         </section>

@@ -220,7 +220,7 @@ export const watchProgress = pgTable(
 /* Sales: one-off purchase per title, lifetime access                  */
 /* ------------------------------------------------------------------ */
 
-export const orderMethod = pgEnum("order_method", ["bank_transfer", "qpay"]);
+export const orderMethod = pgEnum("order_method", ["bank_transfer", "qpay", "socialpay"]);
 export const orderStatus = pgEnum("order_status", [
   "pending",
   "awaiting_review",
@@ -234,7 +234,7 @@ export const orders = pgTable(
   "orders",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** Short code the user writes as the bank transfer description, e.g. MH4821 */
+    /** Short human-readable order code, e.g. MH4821 (shown at checkout / in admin) */
     code: text("code").notNull().unique(),
     userId: text("user_id")
       .notNull()
@@ -243,7 +243,9 @@ export const orders = pgTable(
       .notNull()
       .references(() => titles.id),
     amountMnt: integer("amount_mnt").notNull(),
-    method: orderMethod("method").notNull().default("bank_transfer"),
+    method: orderMethod("method").notNull().default("qpay"),
+    /** true when settled by the built-in test provider (no real money moved) */
+    isTest: boolean("is_test").notNull().default(false),
     status: orderStatus("status").notNull().default("pending"),
     providerInvoiceId: text("provider_invoice_id").unique(),
     reviewedBy: text("reviewed_by").references(() => user.id),

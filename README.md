@@ -48,7 +48,10 @@ scripts/seed.ts
 
 - Each title has its own price (`price_mnt`, 0 = free); a purchase gives lifetime access.
 - Unpaid viewers get `free_preview_sec` (default 300 s), counted from episode 1 for series.
-- Payment phase A: bank transfer with order code, admin approves. Phase B: QPay.
+- Payments: `PAYMENT_MODE=test` (default) uses a fake QPay/SocialPay provider; the buyer confirms with one click in the
+  checkout modal and gets lifetime access (`orders` + `purchases` rows, flagged `is_test`). To go live, implement
+  `src/server/payments/qpay.ts` / `socialpay.ts` (same `PaymentProvider` interface), add a callback route, then set
+  `PAYMENT_MODE=live` (this also disables `/api/orders/:id/test-pay`).
 
 ## Video (Cloudflare R2 + Worker)
 

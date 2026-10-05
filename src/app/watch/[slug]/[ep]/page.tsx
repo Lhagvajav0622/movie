@@ -26,6 +26,7 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
   if (t.orientation === "vertical") {
     return (
       <ReelFeed
+        titleId={t.id}
         slug={t.slug}
         titleName={t.name}
         episodes={t.episodes}
@@ -41,6 +42,7 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
       <Header />
       <main className="flex-1 pb-16">
         <FilmPlayer
+          titleId={t.id}
           slug={t.slug}
           titleName={t.name}
           episodes={t.episodes}

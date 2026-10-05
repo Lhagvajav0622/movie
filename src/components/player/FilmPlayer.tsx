@@ -13,6 +13,7 @@ export function FilmPlayer({
   titleName,
   episodes,
   current,
+  titleId,
   priceMnt,
   freeMinutes,
   hue,
@@ -21,6 +22,7 @@ export function FilmPlayer({
   titleName: string;
   episodes: EpisodeView[];
   current: EpisodeView;
+  titleId: string;
   priceMnt: number;
   freeMinutes: number;
   hue?: number;
@@ -54,7 +56,7 @@ export function FilmPlayer({
           controlsList="nodownload"
           onContextMenu={(e) => e.preventDefault()}
         />
-        <PlayerOverlay state={state} previewEnded={previewEnded} priceMnt={priceMnt} freeMinutes={freeMinutes} />
+        <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} freeMinutes={freeMinutes} />
       </div>
 
       <div className="flex flex-col gap-6 px-4 pt-4 md:px-0">

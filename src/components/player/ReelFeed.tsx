@@ -11,6 +11,7 @@ type Props = {
   titleName: string;
   episodes: EpisodeView[];
   startNumber: number;
+  titleId: string;
   priceMnt: number;
   freeMinutes: number;
 };
@@ -19,7 +20,7 @@ type Props = {
  * Vertical (9:16) swipe feed for short dramas: one episode per screen, scroll-snap,
  * only the visible episode loads video. Next episode starts automatically.
  */
-export function ReelFeed({ slug, titleName, episodes, startNumber, priceMnt, freeMinutes }: Props) {
+export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, priceMnt, freeMinutes }: Props) {
   const startIndex = Math.max(0, episodes.findIndex((e) => e.number === startNumber));
   const [active, setActive] = useState(startIndex);
   const [soundBlocked, setSoundBlocked] = useState(false);
@@ -68,6 +69,7 @@ export function ReelFeed({ slug, titleName, episodes, startNumber, priceMnt, fre
               <ReelItem
                 episode={ep}
                 active={i === active}
+                titleId={titleId}
                 priceMnt={priceMnt}
                 freeMinutes={freeMinutes}
                 onEnded={() => goTo(i + 1)}
@@ -160,6 +162,7 @@ export function ReelFeed({ slug, titleName, episodes, startNumber, priceMnt, fre
 function ReelItem({
   episode,
   active,
+  titleId,
   priceMnt,
   freeMinutes,
   onEnded,
@@ -167,6 +170,7 @@ function ReelItem({
 }: {
   episode: EpisodeView;
   active: boolean;
+  titleId: string;
   priceMnt: number;
   freeMinutes: number;
   onEnded: () => void;
@@ -229,7 +233,7 @@ function ReelItem({
       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/15">
         <div className="h-full bg-brand-400" style={{ width: `${progress * 100}%` }} />
       </div>
-      {active && <PlayerOverlay state={state} previewEnded={previewEnded} priceMnt={priceMnt} freeMinutes={freeMinutes} />}
+      {active && <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} freeMinutes={freeMinutes} />}
     </div>
   );
 }

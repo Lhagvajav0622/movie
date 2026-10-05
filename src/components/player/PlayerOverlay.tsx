@@ -7,11 +7,13 @@ import type { PlayState } from "./usePlayback";
 export function PlayerOverlay({
   state,
   previewEnded,
+  titleId,
   priceMnt,
   freeMinutes,
 }: {
   state: PlayState;
   previewEnded: boolean;
+  titleId: string;
   priceMnt: number;
   freeMinutes: number;
 }) {
@@ -42,7 +44,7 @@ export function PlayerOverlay({
             {previewEnded ? `Үнэгүй ${freeMinutes} минут дууслаа` : "Энэ анги түгжээтэй"}
           </p>
           <p className="text-body-2 text-fg-muted">Нэг удаа худалдаж аваад хугацаагүй үзээрэй.</p>
-          <BuyButton priceMnt={priceMnt} className="mt-1 h-11 w-full text-[14px]" />
+          <BuyButton titleId={titleId} priceMnt={priceMnt} className="mt-1 h-11 w-full text-[14px]" />
         </div>
       </div>
     );
