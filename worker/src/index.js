@@ -4,6 +4,7 @@
  * - Enforces the free preview: playlists are cut and later segments refused.
  * - Caches segments and full playlists at the edge (Cloudflare has an Ulaanbaatar PoP).
  * - Serves episode thumbnails publicly at /thumb/{episodeId}.jpg.
+ * - Serves admin-uploaded posters / backdrops publicly at /img/{uuid}.{webp|jpg|png} (R2 key i/{uuid}.ext).
  *
  * Secrets / bindings (see wrangler.toml):  VIDEOS (R2 bucket), SIGNING_SECRET, ALLOWED_ORIGINS
  */
@@ -78,6 +79,13 @@ const worker = {
     const thumb = url.pathname.match(/^\/thumb\/([A-Za-z0-9-]+)\.jpg$/);
     if (thumb) {
       const res = await fromR2(env, `t/${thumb[1]}.jpg`, request, `https://cache.mhub/t/${thumb[1]}.jpg`, ctx, cors, true);
+      return res || deny(404, cors);
+    }
+
+    // Public posters / backdrops uploaded from the admin panel (random names, never change)
+    const img = url.pathname.match(/^\/img\/([A-Za-z0-9-]{8,64}\.(?:webp|jpg|png))$/);
+    if (img) {
+      const res = await fromR2(env, `i/${img[1]}`, request, `https://cache.mhub/i/${img[1]}`, ctx, cors, true);
       return res || deny(404, cors);
     }
 

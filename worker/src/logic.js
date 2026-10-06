@@ -81,5 +81,7 @@ export function contentType(key) {
   if (key.endsWith(".m4s")) return "video/iso.segment";
   if (key.endsWith(".mp4")) return "video/mp4";
   if (key.endsWith(".jpg")) return "image/jpeg";
+  if (key.endsWith(".webp")) return "image/webp";
+  if (key.endsWith(".png")) return "image/png";
   return "application/octet-stream";
 }

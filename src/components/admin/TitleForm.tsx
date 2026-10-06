@@ -2,6 +2,7 @@
 import { useActionState, useState } from "react";
 import { saveTitle, type TitleFormState } from "@/app/admin/actions";
 import { slugify } from "@/lib/slug";
+import { ImageUpload } from "./ImageUpload";
 
 type Genre = { id: string; nameMn: string };
 export type TitleFormValues = {
@@ -46,6 +47,7 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
   const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug));
   const [type, setType] = useState(initial.type ?? "film");
   const [poster, setPoster] = useState(initial.posterUrl ?? "");
+  const [backdrop, setBackdrop] = useState(initial.backdropUrl ?? "");
 
   return (
     <form action={action} className="grid gap-8 lg:grid-cols-[1fr_220px]">
@@ -181,18 +183,20 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
 
         <section className="space-y-4 rounded-2xl border border-stroke p-5">
           <h2 className="text-body font-semibold">Зураг</h2>
-          <L label="Постер (холбоос)" hint="2:3 харьцаатай зургийн холбоос.">
+          <L label="Постер" hint="2:3 харьцаатай зураг. Сонгоод автоматаар жижигрүүлж хадгална, эсвэл холбоос шууд оруулж болно.">
+            <ImageUpload maxWidth={800} onChange={setPoster} />
             <input
               name="posterUrl"
               type="url"
               value={poster}
               onChange={(e) => setPoster(e.target.value)}
               placeholder="https://..."
-              className={input}
+              className={`${input} mt-2`}
             />
           </L>
-          <L label="Арын зураг (холбоос)" hint="16:9, нүүрний баннерт">
-            <input name="backdropUrl" type="url" defaultValue={initial.backdropUrl ?? ""} placeholder="https://..." className={input} />
+          <L label="Арын зураг" hint="16:9, нүүрний баннерт">
+            <ImageUpload maxWidth={1600} onChange={setBackdrop} />
+            <input name="backdropUrl" type="url" value={backdrop} onChange={(e) => setBackdrop(e.target.value)} placeholder="https://..." className={`${input} mt-2`} />
           </L>
         </section>
       </div>
