@@ -10,7 +10,7 @@ const INTERVAL_MS = 6000;
  * Desktop home hero: slides cross-fade automatically, pause while hovered / focused,
  * with prev / next arrows and a pager whose active pill fills up as the timer runs.
  */
-export function HeroSlider({ items }: { items: TitleCardData[] }) {
+export function HeroSlider({ items, savedSlugs = [] }: { items: TitleCardData[]; savedSlugs?: string[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = items.length;
@@ -53,7 +53,7 @@ export function HeroSlider({ items }: { items: TitleCardData[] }) {
                 {t.description}
               </p>
             )}
-            <HeroButtons slug={t.slug} />
+            <HeroButtons slug={t.slug} id={t.id} saved={savedSlugs.includes(t.slug)} />
           </div>
         </div>
       ))}

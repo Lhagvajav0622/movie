@@ -5,12 +5,13 @@ import { HeroCarousel, MobileTopBar, RecommendedGrid, StarredCard, Top10Row } fr
 import { TitleRow } from "@/components/catalog/TitleRow";
 import { getHomeData } from "@/server/home";
 import { getSession } from "@/server/auth";
-import { listHistory } from "@/server/library";
+import { listHistory, listSaved } from "@/server/library";
 
 export default async function HomePage() {
   const { items: all, genres } = await getHomeData();
   const session = await getSession().catch(() => null);
   const history = session ? await listHistory(session.user.id, 10).catch(() => []) : [];
+  const savedSlugs = session ? await listSaved(session.user.id).then((r) => r.map((x) => x.slug)).catch(() => []) : [];
   const continueItems = history.map((h) => ({
     slug: h.slug,
     name: h.name,
@@ -49,12 +50,12 @@ export default async function HomePage() {
 
       {/* Desktop (Figma "Home", 1440 wide, 1088 content) */}
       <div className="mx-auto hidden max-w-[1120px] flex-col gap-10 px-4 pt-6 md:flex">
-        <HeroSlider items={featuredFirst.slice(0, 5)} />
+        <HeroSlider items={featuredFirst.slice(0, 5)} savedSlugs={savedSlugs} />
         {continueItems.length > 0 && <TitleRow title="Үргэлжлүүлэн үзэх" href="/history" items={continueItems} />}
         <TitleRow title="Онцлох бүтээлүүд" href="/search" items={featuredFirst.slice(0, 10)} />
         <TitleRow title="Сүүлд гарсан" href="/search" items={latest} />
         <GenreSection genres={genres} items={all} />
-        <FeatureBanner t={spotlight} />
+        <FeatureBanner t={spotlight} saved={savedSlugs.includes(spotlight.slug)} />
         {series.length > 0 && <TitleRow title="Цуврал драм" href="/search" items={series} />}
         {films.length > 0 && <TitleRow title="Уран сайхны кино" href="/search" items={films} />}
       </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { IconPlay, IconPlus } from "@/components/ui/icons";
+import { IconPlay } from "@/components/ui/icons";
+import { SaveButton } from "./SaveButton";
 import type { TitleCardData } from "./TitleCard";
 
 export function formatDuration(sec?: number | null) {
@@ -21,7 +22,7 @@ export function MetaInfo({ t }: { t: TitleCardData }) {
 }
 
 /** Play (264 wide) + add buttons from the Figma "Buttons" group. */
-export function HeroButtons({ slug }: { slug: string }) {
+export function HeroButtons({ slug, id, saved = false }: { slug: string; id?: string; saved?: boolean }) {
   return (
     <div className="flex items-center gap-4">
       <Link
@@ -31,13 +32,7 @@ export function HeroButtons({ slug }: { slug: string }) {
         Тоглуулах
         <IconPlay />
       </Link>
-      <button
-        type="button"
-        aria-label="Хадгалах"
-        className="rounded-lg border-[1.5px] border-brand-300 bg-brand-400 p-4 transition hover:bg-brand-500"
-      >
-        <IconPlus />
-      </button>
+      <SaveButton titleId={id ?? ""} slug={slug} initial={saved} variant="icon" disabled={!id} />
     </div>
   );
 }
@@ -67,14 +62,14 @@ export function HeroBanner({ t }: { t: TitleCardData }) {
       <div className="relative flex flex-col gap-4">
         <h1 className="text-h1 font-bold">{t.name}</h1>
         <MetaInfo t={t} />
-        <HeroButtons slug={t.slug} />
+        <HeroButtons slug={t.slug} id={t.id} />
       </div>
     </section>
   );
 }
 
 /** Desktop "Movie" feature block (488px, dimmed backdrop, description). */
-export function FeatureBanner({ t }: { t: TitleCardData }) {
+export function FeatureBanner({ t, saved = false }: { t: TitleCardData; saved?: boolean }) {
   return (
     <section className="relative hidden h-[488px] overflow-hidden md:block">
       <Backdrop t={t} dim />
@@ -85,7 +80,7 @@ export function FeatureBanner({ t }: { t: TitleCardData }) {
         {t.description && (
           <p className="line-clamp-3 text-body font-medium tracking-[0.2px] text-fg-muted">{t.description}</p>
         )}
-        <HeroButtons slug={t.slug} />
+        <HeroButtons slug={t.slug} id={t.id} saved={saved} />
       </div>
     </section>
   );

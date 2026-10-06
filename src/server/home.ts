@@ -20,6 +20,7 @@ export async function getHomeData(): Promise<{ items: HomeItem[]; genres: string
     const rows = await listPublishedTitles(60);
     if (rows.length > 0) {
       const items: HomeItem[] = rows.map((r) => ({
+        id: r.id,
         slug: r.slug,
         name: r.name,
         year: r.year,

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 export type TitleCardData = {
+  /** DB id (absent for demo items); needed to save a title */
+  id?: string;
   slug: string;
   name: string;
   year?: number | null;
