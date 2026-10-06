@@ -30,18 +30,39 @@ export type TitleFormValues = {
 const input =
   "h-11 w-full rounded-lg border border-stroke bg-surface px-3 text-body-2 outline-none placeholder:text-fg-subtle focus:border-brand-400";
 
-function L({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function L({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-body-2 font-medium text-fg-muted">{label}</span>
+      <span className="mb-1.5 block text-body-2 font-medium text-fg-muted">
+        {label}
+      </span>
       {children}
-      {hint && <span className="mt-1 block text-caption text-fg-subtle">{hint}</span>}
+      {hint && (
+        <span className="mt-1 block text-caption text-fg-subtle">{hint}</span>
+      )}
     </label>
   );
 }
 
-export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?: TitleFormValues }) {
-  const [state, action, pending] = useActionState<TitleFormState, FormData>(saveTitle, undefined);
+export function TitleForm({
+  genres,
+  initial = {},
+}: {
+  genres: Genre[];
+  initial?: TitleFormValues;
+}) {
+  const [state, action, pending] = useActionState<TitleFormState, FormData>(
+    saveTitle,
+    undefined,
+  );
   const [name, setName] = useState(initial.name ?? "");
   const [slug, setSlug] = useState(initial.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug));
@@ -70,7 +91,11 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
           </L>
           <div className="grid gap-4 sm:grid-cols-2">
             <L label="Эх нэр" hint="Хятад эсвэл англи нэр (хайлтад ашиглана)">
-              <input name="nameOriginal" defaultValue={initial.nameOriginal ?? ""} className={input} />
+              <input
+                name="nameOriginal"
+                defaultValue={initial.nameOriginal ?? ""}
+                className={input}
+              />
             </L>
             <L label="Хаяг (URL)" hint={`/title/${slug || "..."}`}>
               <input
@@ -105,14 +130,23 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
               </select>
             </L>
             <L label="Харагдах чиглэл" hint="Хятад богино драм бол «Босоо»">
-              <select name="orientation" defaultValue={initial.orientation ?? (type === "series" ? "vertical" : "horizontal")} className={input}>
+              <select
+                name="orientation"
+                defaultValue={
+                  initial.orientation ??
+                  (type === "series" ? "vertical" : "horizontal")
+                }
+                className={input}
+              >
                 <option value="horizontal">Хэвтээ (16:9)</option>
                 <option value="vertical">Босоо (9:16, reel)</option>
               </select>
             </L>
           </div>
           <div>
-            <span className="mb-1.5 block text-body-2 font-medium text-fg-muted">Жанр</span>
+            <span className="mb-1.5 block text-body-2 font-medium text-fg-muted">
+              Жанр
+            </span>
             <div className="flex flex-wrap gap-2">
               {genres.map((g) => (
                 <label key={g.id} className="cursor-pointer">
@@ -136,18 +170,33 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
           <h2 className="text-body font-semibold">Үнэ ба үнэгүй хэсэг</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <L label="Үнэ (₮)" hint="0 бол бүхэлдээ үнэгүй">
-              <input name="priceMnt" type="number" min={0} step={100} defaultValue={initial.priceMnt ?? 4000} className={input} />
+              <input
+                name="priceMnt"
+                type="number"
+                min={0}
+                step={100}
+                defaultValue={initial.priceMnt ?? 4000}
+                className={input}
+              />
             </L>
             <L
               label="Үнэгүй үзэх (минут)"
-              hint={type === "series" ? "1-р ангиас эхлэн нийлбэрээр тооцно" : "Киноны эхний хэсэг"}
+              hint={
+                type === "series"
+                  ? "1-р ангиас эхлэн нийлбэрээр тооцно"
+                  : "Киноны эхний хэсэг"
+              }
             >
               <input
                 name="freePreviewMin"
                 type="number"
                 min={0}
                 step={0.5}
-                defaultValue={initial.freePreviewSec != null ? initial.freePreviewSec / 60 : 5}
+                defaultValue={
+                  initial.freePreviewSec != null
+                    ? initial.freePreviewSec / 60
+                    : 5
+                }
                 className={input}
               />
             </L>
@@ -158,10 +207,21 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
           <h2 className="text-body font-semibold">Дэлгэрэнгүй</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <L label="Он">
-              <input name="year" type="number" min={1900} max={2100} defaultValue={initial.year ?? ""} className={input} />
+              <input
+                name="year"
+                type="number"
+                min={1900}
+                max={2100}
+                defaultValue={initial.year ?? ""}
+                className={input}
+              />
             </L>
             <L label="Насны ангилал">
-              <select name="ageRating" defaultValue={initial.ageRating ?? ""} className={input}>
+              <select
+                name="ageRating"
+                defaultValue={initial.ageRating ?? ""}
+                className={input}
+              >
                 <option value="">—</option>
                 <option>+7</option>
                 <option>+13</option>
@@ -170,20 +230,36 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
               </select>
             </L>
             <L label="Улс">
-              <input name="country" defaultValue={initial.country ?? ""} placeholder="Хятад" className={input} />
+              <input
+                name="country"
+                defaultValue={initial.country ?? ""}
+                placeholder="Хятад"
+                className={input}
+              />
             </L>
           </div>
           <L label="Найруулагч">
-            <input name="director" defaultValue={initial.director ?? ""} className={input} />
+            <input
+              name="director"
+              defaultValue={initial.director ?? ""}
+              className={input}
+            />
           </L>
           <L label="Жүжигчид" hint="Таслалаар тусгаарлана">
-            <input name="castText" defaultValue={initial.castText ?? ""} className={input} />
+            <input
+              name="castText"
+              defaultValue={initial.castText ?? ""}
+              className={input}
+            />
           </L>
         </section>
 
         <section className="space-y-4 rounded-2xl border border-stroke p-5">
           <h2 className="text-body font-semibold">Зураг</h2>
-          <L label="Постер" hint="2:3 харьцаатай зураг. Сонгоод автоматаар жижигрүүлж хадгална, эсвэл холбоос шууд оруулж болно.">
+          <L
+            label="Постер"
+            hint="2:3 харьцаатай зураг. Сонгоод автоматаар жижигрүүлж хадгална, эсвэл холбоос шууд оруулж болно."
+          >
             <ImageUpload maxWidth={800} onChange={setPoster} />
             <input
               name="posterUrl"
@@ -196,7 +272,14 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
           </L>
           <L label="Арын зураг" hint="16:9, нүүрний баннерт">
             <ImageUpload maxWidth={1600} onChange={setBackdrop} />
-            <input name="backdropUrl" type="url" value={backdrop} onChange={(e) => setBackdrop(e.target.value)} placeholder="https://..." className={`${input} mt-2`} />
+            <input
+              name="backdropUrl"
+              type="url"
+              value={backdrop}
+              onChange={(e) => setBackdrop(e.target.value)}
+              placeholder="https://..."
+              className={`${input} mt-2`}
+            />
           </L>
         </section>
       </div>
@@ -213,17 +296,36 @@ export function TitleForm({ genres, initial = {} }: { genres: Genre[]; initial?:
           )}
         </div>
         <L label="Төлөв">
-          <select name="status" defaultValue={initial.status ?? "draft"} className={input}>
+          <select
+            name="status"
+            defaultValue={initial.status ?? "draft"}
+            className={input}
+          >
             <option value="draft">Ноорог (харагдахгүй)</option>
             <option value="published">Нийтлэх</option>
           </select>
         </L>
         <label className="flex items-center gap-2 text-body-2 text-fg-muted">
-          <input type="checkbox" name="isFeatured" defaultChecked={initial.isFeatured} className="size-4 accent-brand-500" />
+          <input
+            type="checkbox"
+            name="isFeatured"
+            defaultChecked={initial.isFeatured}
+            className="size-4 accent-brand-500"
+          />
           Нүүрэнд онцлох
         </label>
-        {state?.error && <p className="text-body-2 text-danger">{state.error}</p>}
-        {state?.ok && <p className="text-body-2 text-emerald-400">Хадгаллаа.</p>}
+        {state?.error && (
+          <p className="text-body-2 text-danger">{state.error}</p>
+        )}
+        {state?.ok && (
+          <p className="text-body-2 text-emerald-400">Хадгаллаа.</p>
+        )}
+        {!initial.id && (
+          <p className="rounded-lg bg-surface-2 px-3 py-2 text-caption text-fg-muted">
+            Эхлээд хадгална. Хадгалсны дараа энэ хуудсанд «Ангиуд» хэсэг гарч,
+            анги нэмээд MP4 файлаа оруулна.
+          </p>
+        )}
         <button
           disabled={pending}
           className="h-11 w-full rounded-lg bg-brand-500 text-body-2 font-semibold hover:bg-brand-400 disabled:opacity-50"
