@@ -28,7 +28,7 @@ export function EpisodeList({
       <div className="relative h-20 w-[142px] shrink-0 overflow-hidden rounded-[4px] md:h-[83px] md:w-[148px]">
         {e.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={e.thumbnailUrl} alt="" className="size-full object-cover" />
+          <img src={e.thumbnailUrl} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
         ) : (
           <Poster
             t={{

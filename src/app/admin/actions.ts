@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -148,6 +148,7 @@ export async function saveTitle(
   });
 
   revalidatePath("/");
+  updateTag("catalog");
   revalidatePath("/admin/titles");
   if (!id) redirect(`/admin/titles/${titleId}?created=1`);
   return { ok: true };
@@ -171,6 +172,7 @@ export async function deleteTitle(form: FormData) {
     await db.delete(schema.titles).where(eq(schema.titles.id, id));
   }
   revalidatePath("/");
+  updateTag("catalog");
   revalidatePath("/admin/titles");
   redirect("/admin/titles");
 }
@@ -208,4 +210,5 @@ export async function deleteEpisode(form: FormData) {
     await deleteObjects([mp4Keys(id).full.key, mp4Keys(id).preview.key]);
   revalidatePath(`/admin/titles/${ep.titleId}`);
   revalidatePath("/");
+  updateTag("catalog");
 }

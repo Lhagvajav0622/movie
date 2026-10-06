@@ -19,7 +19,7 @@ export type TitleCardData = {
 export function Poster({ t, className = "" }: { t: TitleCardData; className?: string }) {
   if (t.posterUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={t.posterUrl} alt="" className={`object-cover ${className}`} />;
+    return <img src={t.posterUrl} alt="" loading="lazy" decoding="async" className={`object-cover ${className}`} />;
   }
   const h = t.hue ?? 250;
   return (
