@@ -34,7 +34,12 @@ export const auth = betterAuth({
       rateLimit: schema.rateLimit,
     },
   }),
-  session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
+  session: {
+    expiresIn: 60 * 60 * 24 * 30,
+    updateAge: 60 * 60 * 24,
+    // Cache the session in a signed cookie for 5 min so pages do not query the DB just to know who you are.
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
+  },
   user: {
     additionalFields: {
       role: { type: "string", defaultValue: "user", input: false },

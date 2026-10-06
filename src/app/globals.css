@@ -66,3 +66,21 @@ body {
   from { width: 0; }
   to { width: 100%; }
 }
+
+/* Press feedback everywhere: buttons and links react the instant they are touched. */
+button:not(:disabled),
+a[href] {
+  -webkit-tap-highlight-color: transparent;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+a[href]:active {
+  opacity: 0.75;
+}
+button,
+a[href] {
+  transition-property: transform, opacity, background-color, color, border-color;
+  transition-duration: 120ms;
+}

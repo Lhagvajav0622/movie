@@ -8,10 +8,15 @@ import { getSession } from "@/server/auth";
 import { listHistory, listSaved } from "@/server/library";
 
 export default async function HomePage() {
-  const { items: all, genres } = await getHomeData();
+  // Everything the page needs is fetched at the same time (each query is a round trip to the database).
   const session = await getSession().catch(() => null);
-  const history = session ? await listHistory(session.user.id, 10).catch(() => []) : [];
-  const savedSlugs = session ? await listSaved(session.user.id).then((r) => r.map((x) => x.slug)).catch(() => []) : [];
+  const uid = session?.user.id;
+  const [{ items: all, genres }, history, saved] = await Promise.all([
+    getHomeData(),
+    uid ? listHistory(uid, 10).catch(() => []) : Promise.resolve([]),
+    uid ? listSaved(uid).catch(() => []) : Promise.resolve([]),
+  ]);
+  const savedSlugs = saved.map((x) => x.slug);
   const continueItems = history.map((h) => ({
     slug: h.slug,
     name: h.name,

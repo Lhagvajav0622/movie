@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSession } from "@/server/auth";
-import { getTitleDetail, type TitleDetail } from "@/server/title";
+import { getTitleDetail, getTitleMeta, type TitleDetail } from "@/server/title";
 import { formatDuration } from "@/components/catalog/HeroBanner";
 import { BackBar, DetailTabs } from "@/components/catalog/DetailChrome";
 import { EpisodeList } from "@/components/catalog/EpisodeList";
@@ -14,12 +14,12 @@ import { IconPlay } from "@/components/ui/icons";
 
 export async function generateMetadata({ params }: PageProps<"/title/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const t = await getTitleDetail(slug).catch(() => null);
+  const t = await getTitleMeta(slug).catch(() => null);
   if (!t) return { title: "Олдсонгүй" };
   return {
     title: t.name,
     description: t.description ?? undefined,
-    openGraph: { title: t.name, description: t.description ?? undefined, images: t.backdropUrl ?? t.posterUrl ?? undefined },
+    openGraph: { title: t.name, description: t.description ?? undefined, images: t.image ?? undefined },
   };
 }
 

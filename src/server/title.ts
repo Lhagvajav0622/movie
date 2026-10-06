@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { db, schema } from "./db";
 import { attachGenres } from "./catalog";
@@ -43,6 +44,25 @@ export type TitleDetail = {
   isDemo?: boolean;
 };
 
+/** Light query for <head> metadata (one row, no episodes / genres). */
+export const getTitleMeta = cache(async (slug: string) => {
+  if (slug.startsWith("demo-")) {
+    const d = demoTitles.find((t) => t.slug === slug);
+    return d ? { name: d.name, description: d.description ?? null, image: null as string | null } : null;
+  }
+  const [t] = await db
+    .select({
+      name: schema.titles.name,
+      description: schema.titles.description,
+      backdropUrl: schema.titles.backdropUrl,
+      posterUrl: schema.titles.posterUrl,
+    })
+    .from(schema.titles)
+    .where(and(eq(schema.titles.slug, slug), eq(schema.titles.status, "published")))
+    .limit(1);
+  return t ? { name: t.name, description: t.description, image: t.backdropUrl ?? t.posterUrl } : null;
+});
+
 export async function getTitleDetail(slug: string, userId?: string | null): Promise<TitleDetail | null> {
   if (slug.startsWith("demo-")) return demoDetail(slug);
 
@@ -53,29 +73,32 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
     .limit(1);
   if (!t) return null;
 
-  const [withGenres] = await attachGenres([t]);
-  const eps = await db
-    .select()
-    .from(schema.episodes)
-    .where(and(eq(schema.episodes.titleId, t.id), eq(schema.episodes.status, "ready")))
-    .orderBy(asc(schema.episodes.number));
-
-  let owned = false;
-  let saved = false;
-  if (userId) {
-    const [p] = await db
-      .select({ u: schema.purchases.userId })
-      .from(schema.purchases)
-      .where(and(eq(schema.purchases.userId, userId), eq(schema.purchases.titleId, t.id)))
-      .limit(1);
-    owned = Boolean(p);
-    const [s] = await db
-      .select({ u: schema.savedTitles.userId })
-      .from(schema.savedTitles)
-      .where(and(eq(schema.savedTitles.userId, userId), eq(schema.savedTitles.titleId, t.id)))
-      .limit(1);
-    saved = Boolean(s);
-  }
+  // Independent queries run at the same time (each one is a network round trip to the database).
+  const [[withGenres], eps, ownedRows, savedRows, genreIds] = await Promise.all([
+    attachGenres([t]),
+    db
+      .select()
+      .from(schema.episodes)
+      .where(and(eq(schema.episodes.titleId, t.id), eq(schema.episodes.status, "ready")))
+      .orderBy(asc(schema.episodes.number)),
+    userId
+      ? db
+          .select({ u: schema.purchases.userId })
+          .from(schema.purchases)
+          .where(and(eq(schema.purchases.userId, userId), eq(schema.purchases.titleId, t.id)))
+          .limit(1)
+      : Promise.resolve([]),
+    userId
+      ? db
+          .select({ u: schema.savedTitles.userId })
+          .from(schema.savedTitles)
+          .where(and(eq(schema.savedTitles.userId, userId), eq(schema.savedTitles.titleId, t.id)))
+          .limit(1)
+      : Promise.resolve([]),
+    db.select({ id: schema.titleGenres.genreId }).from(schema.titleGenres).where(eq(schema.titleGenres.titleId, t.id)),
+  ]);
+  const owned = ownedRows.length > 0;
+  const saved = savedRows.length > 0;
 
   const lite = eps.map((e) => ({ id: e.id, number: e.number, durationSec: e.durationSec }));
   const episodes: EpisodeView[] = eps.map((e) => ({
@@ -95,10 +118,6 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
 
   // Similar: other published titles sharing a genre, newest first.
   let similar: SimilarView[] = [];
-  const genreIds = await db
-    .select({ id: schema.titleGenres.genreId })
-    .from(schema.titleGenres)
-    .where(eq(schema.titleGenres.titleId, t.id));
   if (genreIds.length) {
     similar = await db
       .selectDistinct({

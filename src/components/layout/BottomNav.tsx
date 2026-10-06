@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { IconBookmark, IconHome, IconUser } from "@/components/ui/icons";
 
@@ -8,6 +8,21 @@ const items = [
   { href: "/saved", label: "Хадгалсан", Icon: IconBookmark },
   { href: "/profile", label: "Хэрэглэгч", Icon: IconUser },
 ];
+
+/** Lights the tab up the moment it is tapped, before the next page has loaded. */
+function NavItem({ active, label, Icon }: { active: boolean; label: string; Icon: (p: { className?: string }) => React.ReactNode }) {
+  const { pending } = useLinkStatus();
+  return (
+    <span
+      className={`flex h-[67px] w-[70px] flex-col items-center justify-center gap-1 py-3 transition ${
+        active || pending ? "text-brand-500" : "text-fg-muted"
+      } ${pending ? "scale-95" : ""}`}
+    >
+      <Icon />
+      <span className="text-[10px] font-medium leading-3">{label}</span>
+    </span>
+  );
+}
 
 /** Floating frosted tab bar from the mobile Figma (351×67, radius 16). */
 export function BottomNav() {
@@ -19,14 +34,8 @@ export function BottomNav() {
           const active = href === "/" ? path === "/" : path.startsWith(href);
           return (
             <li key={href}>
-              <Link
-                href={href}
-                className={`flex h-[67px] w-[70px] flex-col items-center justify-center gap-1 py-3 ${
-                  active ? "text-brand-500" : "text-fg-muted"
-                }`}
-              >
-                <Icon />
-                <span className="text-[10px] font-medium leading-3">{label}</span>
+              <Link href={href}>
+                <NavItem active={active} label={label} Icon={Icon} />
               </Link>
             </li>
           );
