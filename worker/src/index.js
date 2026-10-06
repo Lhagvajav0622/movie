@@ -11,6 +11,7 @@
 import {
   base64url,
   contentType,
+  parseRange,
   parseSignedPath,
   safeEqual,
   segmentPastLimit,
@@ -38,7 +39,7 @@ function corsHeaders(request, env) {
     "Access-Control-Allow-Origin": ok ? origin || "*" : "null",
     "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Range",
-    "Access-Control-Expose-Headers": "Content-Length, Content-Range",
+    "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
     Vary: "Origin",
   };
 }
@@ -65,6 +66,25 @@ async function fromR2(env, key, request, cacheKeyUrl, ctx, cors, cacheable) {
   const res = new Response(obj.body, { headers });
   if (cacheable && request.method === "GET") ctx.waitUntil(cache.put(cacheKey, res.clone()));
   return res;
+}
+
+/** Streams an MP4 from R2 with HTTP Range support (needed for seeking and iOS playback). */
+async function serveMp4(request, env, key, cors) {
+  const head = await env.VIDEOS.head(key);
+  if (!head) return deny(404, cors);
+  const range = parseRange(request.headers.get("Range"), head.size);
+  const base = { ...cors, "Content-Type": "video/mp4", "Accept-Ranges": "bytes", "Cache-Control": "private, no-store" };
+  if (range === "invalid") return new Response(null, { status: 416, headers: { ...base, "Content-Range": `bytes */${head.size}` } });
+  if (!range) {
+    const obj = await env.VIDEOS.get(key);
+    return new Response(obj.body, { headers: { ...base, "Content-Length": String(head.size) } });
+  }
+  const length = range.end - range.start + 1;
+  const obj = await env.VIDEOS.get(key, { range: { offset: range.start, length } });
+  return new Response(obj.body, {
+    status: 206,
+    headers: { ...base, "Content-Length": String(length), "Content-Range": `bytes ${range.start}-${range.end}/${head.size}` },
+  });
 }
 
 const worker = {
@@ -97,6 +117,8 @@ const worker = {
     const expected = await hmac(env.SIGNING_SECRET, signingPayload(p.exp, p.limit, p.seg, p.episodeId));
     if (!safeEqual(expected, p.sig)) return deny(403, cors);
     if (segmentPastLimit(p.key, p.limit, p.seg)) return deny(403, cors);
+
+    if (p.key.endsWith(".mp4")) return serveMp4(request, env, p.key, cors);
 
     const isPlaylist = p.key.endsWith(".m3u8");
     if (isPlaylist && p.limit > 0) {

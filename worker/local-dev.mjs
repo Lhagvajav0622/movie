@@ -8,10 +8,17 @@ const env = {
   SIGNING_SECRET: "local-secret",
   ALLOWED_ORIGINS: "*",
   VIDEOS: {
-    async get(key) {
+    async get(key, opts) {
+      try {
+        let buf = await readFile(`${ROOT}/${key}`);
+        if (opts?.range) buf = buf.subarray(opts.range.offset, opts.range.offset + opts.range.length);
+        return { body: buf, httpEtag: '"x"', text: async () => buf.toString() };
+      } catch { return null; }
+    },
+    async head(key) {
       try {
         const buf = await readFile(`${ROOT}/${key}`);
-        return { body: buf, httpEtag: '"x"', text: async () => buf.toString() };
+        return { size: buf.length };
       } catch { return null; }
     },
   },

@@ -21,7 +21,6 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
 
   const number = Number(ep) || t.episodes[0].number;
   const current = t.episodes.find((e) => e.number === number) ?? t.episodes[0];
-  const freeMinutes = Math.round(t.freePreviewSec / 60);
 
   if (t.orientation === "vertical") {
     return (
@@ -32,7 +31,6 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
         episodes={t.episodes}
         startNumber={current.number}
         priceMnt={t.priceMnt}
-        freeMinutes={freeMinutes}
       />
     );
   }
@@ -48,8 +46,7 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
           episodes={t.episodes}
           current={current}
           priceMnt={t.priceMnt}
-          freeMinutes={freeMinutes}
-          hue={t.hue}
+            hue={t.hue}
         />
       </main>
     </>

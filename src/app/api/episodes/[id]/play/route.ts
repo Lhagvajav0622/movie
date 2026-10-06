@@ -3,7 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { db, schema } from "@/server/db";
 import { getSession } from "@/server/auth";
 import { episodeAccess } from "@/server/access";
-import { signPlaybackUrl, videoConfigured } from "@/server/video";
+import { signMp4Url, signPlaybackUrl, videoConfigured } from "@/server/video";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -16,7 +16,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   if (!/^[0-9a-f-]{36}$/.test(id)) return NextResponse.json({ code: "NOT_FOUND" }, { status: 404 });
 
   const [ep] = await db.select().from(schema.episodes).where(eq(schema.episodes.id, id)).limit(1);
-  if (!ep || ep.status !== "ready" || !ep.videoKey) return NextResponse.json({ code: "NOT_READY" }, { status: 404 });
+  if (!ep || ep.status !== "ready" || !(ep.videoKey || ep.fullMp4Key || ep.previewMp4Key)) return NextResponse.json({ code: "NOT_READY" }, { status: 404 });
   const [title] = await db
     .select()
     .from(schema.titles)
@@ -45,7 +45,14 @@ export async function GET(_req: Request, { params }: Ctx) {
   }
 
   const all = await db
-    .select({ id: schema.episodes.id, number: schema.episodes.number, durationSec: schema.episodes.durationSec })
+    .select({
+      id: schema.episodes.id,
+      number: schema.episodes.number,
+      durationSec: schema.episodes.durationSec,
+      videoKey: schema.episodes.videoKey,
+      fullMp4Key: schema.episodes.fullMp4Key,
+      previewMp4Key: schema.episodes.previewMp4Key,
+    })
     .from(schema.episodes)
     .where(and(eq(schema.episodes.titleId, title.id), eq(schema.episodes.status, "ready")))
     .orderBy(asc(schema.episodes.number));
@@ -54,7 +61,14 @@ export async function GET(_req: Request, { params }: Ctx) {
     priceMnt: title.priceMnt,
     freePreviewSec: title.freePreviewSec,
     owned,
-    episodes: all,
+    episodes: all.map((e) => ({
+      id: e.id,
+      number: e.number,
+      durationSec: e.durationSec,
+      hasPreviewClip: Boolean(e.previewMp4Key),
+      hasFull: Boolean(e.fullMp4Key || e.videoKey),
+      hasHls: Boolean(e.videoKey),
+    })),
     episodeId: ep.id,
   });
 
@@ -63,16 +77,41 @@ export async function GET(_req: Request, { params }: Ctx) {
   }
   if (!videoConfigured()) return NextResponse.json({ code: "VIDEO_NOT_CONFIGURED" }, { status: 503 });
 
-  const limitSec = access.kind === "preview" ? access.allowedSec : 0;
-  const url = signPlaybackUrl({ episodeId: ep.id, videoKey: ep.videoKey, limitSec, segmentSec: ep.segmentSec });
+  // Pick the file: the separate free clip, the full MP4, or the legacy HLS (cut by time for previews).
+  let url: string;
+  let kind: "mp4" | "hls" = "mp4";
+  let limitSec = 0;
+  let shownAccess: "full" | "preview" = "full";
+  let durationSec = ep.durationSec;
+  if (access.kind === "clip") {
+    url = signMp4Url(ep.id, "preview");
+    shownAccess = "preview";
+    durationSec = ep.previewDurationSec || ep.durationSec;
+  } else if (access.kind === "preview") {
+    if (!ep.videoKey) return NextResponse.json({ code: "NOT_READY" }, { status: 404 });
+    kind = "hls";
+    limitSec = access.allowedSec;
+    shownAccess = "preview";
+    url = signPlaybackUrl({ episodeId: ep.id, videoKey: ep.videoKey, limitSec, segmentSec: ep.segmentSec });
+  } else if (ep.fullMp4Key) {
+    url = signMp4Url(ep.id, "full");
+  } else if (ep.videoKey) {
+    kind = "hls";
+    url = signPlaybackUrl({ episodeId: ep.id, videoKey: ep.videoKey, limitSec: 0, segmentSec: ep.segmentSec });
+  } else {
+    // A free episode that only has the clip file
+    url = signMp4Url(ep.id, "preview");
+    durationSec = ep.previewDurationSec || ep.durationSec;
+  }
 
   return NextResponse.json(
     {
       url,
-      access: access.kind,
+      kind,
+      access: shownAccess,
       allowedSec: limitSec || null,
       resumeSec: limitSec ? Math.min(resumeSec, Math.max(0, limitSec - 5)) : resumeSec,
-      durationSec: ep.durationSec,
+      durationSec,
       priceMnt: title.priceMnt,
     },
     { headers: { "Cache-Control": "private, no-store" } },

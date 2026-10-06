@@ -82,3 +82,14 @@ npm run video -- --title <slug> --episode 1 --file "C:\videos\film.mp4"
 ```
 
 Local test without Cloudflare: `STORE=<folder> node worker/local-dev.mjs` serves a folder like R2.
+
+## Video upload from the admin page (MP4)
+Each episode has two slots: a free clip (`v/<id>-pv/preview.mp4`, anyone can watch) and the full version
+(`v/<id>/full.mp4`, owners only). The browser uploads straight to R2 in 32 MB parts (nothing passes through Vercel).
+One-time setup:
+1. Vercel env: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`.
+2. `npm run r2:cors -- https://<your-site>` (lets the browser PUT parts to the bucket).
+3. Redeploy the Worker (`cd worker && npx wrangler deploy`) so it serves MP4 with Range and `/img/*`.
+
+Files must be H.264 + AAC MP4 with the index at the front ("faststart"). The admin page checks this and tells you;
+`npm run faststart -- "file.mp4"` fixes a file in seconds without re-encoding. Legacy HLS uploads (`npm run video`) still work.

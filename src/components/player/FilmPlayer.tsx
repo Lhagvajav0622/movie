@@ -15,7 +15,6 @@ export function FilmPlayer({
   current,
   titleId,
   priceMnt,
-  freeMinutes,
   hue,
 }: {
   slug: string;
@@ -24,7 +23,6 @@ export function FilmPlayer({
   current: EpisodeView;
   titleId: string;
   priceMnt: number;
-  freeMinutes: number;
   hue?: number;
 }) {
   const { videoRef, state, previewEnded } = usePlayback(current.id, true);
@@ -56,7 +54,7 @@ export function FilmPlayer({
           controlsList="nodownload"
           onContextMenu={(e) => e.preventDefault()}
         />
-        <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} freeMinutes={freeMinutes} />
+        <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} />
       </div>
 
       <div className="flex flex-col gap-6 px-4 pt-4 md:px-0">

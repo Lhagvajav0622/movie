@@ -9,13 +9,11 @@ export function PlayerOverlay({
   previewEnded,
   titleId,
   priceMnt,
-  freeMinutes,
 }: {
   state: PlayState;
   previewEnded: boolean;
   titleId: string;
   priceMnt: number;
-  freeMinutes: number;
 }) {
   if (state.status === "loading" || state.status === "idle") {
     return (
@@ -41,7 +39,7 @@ export function PlayerOverlay({
             <IconLock size={24} />
           </span>
           <p className="text-body font-bold">
-            {previewEnded ? `Үнэгүй ${freeMinutes} минут дууслаа` : "Энэ анги түгжээтэй"}
+            {previewEnded ? "Үнэгүй хэсэг дууслаа" : "Энэ анги түгжээтэй"}
           </p>
           <p className="text-body-2 text-fg-muted">Нэг удаа худалдаж аваад хугацаагүй үзээрэй.</p>
           <BuyButton titleId={titleId} priceMnt={priceMnt} className="mt-1 h-11 w-full text-[14px]" />

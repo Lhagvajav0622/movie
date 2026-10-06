@@ -4,6 +4,8 @@ import type Hls from "hls.js";
 
 export type PlayInfo = {
   url: string;
+  /** "mp4": a plain file (video.src); "hls": a stream (hls.js / Safari) */
+  kind: "mp4" | "hls";
   access: "full" | "preview";
   allowedSec: number | null;
   resumeSec: number;
@@ -82,7 +84,9 @@ export function usePlayback(episodeId: string | null, active: boolean) {
     };
     v.addEventListener("loadedmetadata", seek, { once: true });
 
-    if (v.canPlayType("application/vnd.apple.mpegurl")) {
+    if (state.info.kind === "mp4") {
+      v.src = url; // plain MP4 plays natively everywhere, with Range requests for seeking
+    } else if (v.canPlayType("application/vnd.apple.mpegurl")) {
       v.src = url; // Safari / iOS play HLS natively
     } else {
       import("hls.js").then(({ default: HlsCtor }) => {

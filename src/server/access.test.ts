@@ -30,3 +30,26 @@ test("drama: partial episode becomes a preview", () => {
     { kind: "preview", allowedSec: 50 },
   );
 });
+
+test("separate free clip: viewer gets the clip, owner gets everything", () => {
+  const eps = [{ id: "m1", number: 1, durationSec: 7200, hasPreviewClip: true, hasFull: true, hasHls: false }];
+  assert.deepEqual(episodeAccess({ ...base, episodes: eps, episodeId: "m1" }), { kind: "clip" });
+  assert.deepEqual(episodeAccess({ ...base, owned: true, episodes: eps, episodeId: "m1" }), { kind: "full" });
+});
+
+test("clip without a paid version is a free episode", () => {
+  const eps = [
+    { id: "a", number: 1, durationSec: 150, hasPreviewClip: true, hasFull: false, hasHls: false },
+    { id: "b", number: 2, durationSec: 150, hasPreviewClip: false, hasFull: true, hasHls: false },
+  ];
+  assert.deepEqual(episodeAccess({ ...base, episodes: eps, episodeId: "a" }), { kind: "full" });
+  assert.deepEqual(episodeAccess({ ...base, episodes: eps, episodeId: "b" }), { kind: "locked" });
+});
+
+test("legacy HLS cut ignores MP4-only episodes in the cumulative count", () => {
+  const eps = [
+    { id: "x", number: 1, durationSec: 150, hasHls: false, hasFull: true },
+    { id: "h1", number: 2, durationSec: 150, hasHls: true, hasFull: true },
+  ];
+  assert.deepEqual(episodeAccess({ ...base, episodes: eps, episodeId: "h1" }), { kind: "full" });
+});

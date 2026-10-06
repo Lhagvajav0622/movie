@@ -64,7 +64,17 @@ export async function slugTaken(slug: string, exceptId?: string) {
 
 export async function listEpisodesAdmin(titleId: string) {
   return db
-    .select({ id: episodes.id, number: episodes.number, durationSec: episodes.durationSec, status: episodes.status })
+    .select({
+      id: episodes.id,
+      number: episodes.number,
+      name: episodes.name,
+      durationSec: episodes.durationSec,
+      status: episodes.status,
+      hasHls: sql<boolean>`${episodes.videoKey} is not null`,
+      fullMp4Key: episodes.fullMp4Key,
+      previewMp4Key: episodes.previewMp4Key,
+      previewDurationSec: episodes.previewDurationSec,
+    })
     .from(episodes)
     .where(eq(episodes.titleId, titleId))
     .orderBy(episodes.number);

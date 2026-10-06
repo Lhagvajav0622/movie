@@ -32,7 +32,7 @@ export function EpisodeList({ slug, episodes, hue }: { slug: string; episodes: E
               <p className="truncate text-body tracking-[0.2px] group-hover:text-brand-300">{e.name || `${e.number}-р анги`}</p>
               <p className="text-caption leading-[22px] text-fg-muted">
                 {minutes(e.durationSec)}
-                {e.access === "preview" && " · эхний хэсэг үнэгүй"}
+                {(e.access === "preview" || e.access === "clip") && " · үнэгүй хэсэгтэй"}
               </p>
             </div>
           </Link>

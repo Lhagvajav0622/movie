@@ -12,7 +12,7 @@ export type EpisodeView = {
   name: string | null;
   durationSec: number;
   thumbnailUrl: string | null;
-  access: "full" | "preview" | "locked";
+  access: "full" | "preview" | "clip" | "locked";
 };
 
 export type SimilarView = { slug: string; name: string; year: number | null; posterUrl: string | null; priceMnt: number; hue?: number };
@@ -100,7 +100,14 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
   const owned = ownedRows.length > 0;
   const saved = savedRows.length > 0;
 
-  const lite = eps.map((e) => ({ id: e.id, number: e.number, durationSec: e.durationSec }));
+  const lite = eps.map((e) => ({
+    id: e.id,
+    number: e.number,
+    durationSec: e.durationSec,
+    hasPreviewClip: Boolean(e.previewMp4Key),
+    hasFull: Boolean(e.fullMp4Key || e.videoKey),
+    hasHls: Boolean(e.videoKey),
+  }));
   const episodes: EpisodeView[] = eps.map((e) => ({
     id: e.id,
     number: e.number,

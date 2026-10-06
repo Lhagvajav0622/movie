@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/server/db";
 import { requireAdmin } from "@/server/auth";
@@ -140,4 +140,29 @@ export async function deleteTitle(form: FormData) {
   revalidatePath("/");
   revalidatePath("/admin/titles");
   redirect("/admin/titles");
+}
+
+/** Adds the next empty episode to a title (video files are attached next, from the browser). */
+export async function addEpisode(form: FormData) {
+  if (!(await requireAdmin())) throw new Error("Unauthorized");
+  const titleId = String(form.get("titleId"));
+  const [last] = await db
+    .select({ n: sql<number>`coalesce(max(${schema.episodes.number}), 0)::int` })
+    .from(schema.episodes)
+    .where(eq(schema.episodes.titleId, titleId));
+  await db.insert(schema.episodes).values({ titleId, number: (last?.n ?? 0) + 1, status: "processing" });
+  revalidatePath(`/admin/titles/${titleId}`);
+}
+
+export async function deleteEpisode(form: FormData) {
+  if (!(await requireAdmin())) throw new Error("Unauthorized");
+  const id = String(form.get("episodeId"));
+  const [ep] = await db.select().from(schema.episodes).where(eq(schema.episodes.id, id)).limit(1);
+  if (!ep) return;
+  await db.delete(schema.episodes).where(eq(schema.episodes.id, id));
+  const { deleteObjects, imageStorageConfigured } = await import("@/server/storage");
+  const { mp4Keys } = await import("@/server/video");
+  if (imageStorageConfigured()) await deleteObjects([mp4Keys(id).full.key, mp4Keys(id).preview.key]);
+  revalidatePath(`/admin/titles/${ep.titleId}`);
+  revalidatePath("/");
 }

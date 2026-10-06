@@ -75,6 +75,29 @@ export function segmentPastLimit(key, limitSec, segSec) {
   return Number(m[1]) * segSec >= limitSec;
 }
 
+/**
+ * Parses an HTTP Range header ("bytes=0-99", "bytes=500-", "bytes=-500") for a file of `size` bytes.
+ * Returns {start, end} (inclusive), null when there is no usable range, or "invalid" when it cannot be satisfied.
+ */
+export function parseRange(header, size) {
+  if (!header) return null;
+  const m = header.match(/^bytes=(\d*)-(\d*)$/);
+  if (!m || (m[1] === "" && m[2] === "")) return null;
+  let start;
+  let end;
+  if (m[1] === "") {
+    const n = Number(m[2]);
+    if (n === 0) return "invalid";
+    start = Math.max(0, size - n);
+    end = size - 1;
+  } else {
+    start = Number(m[1]);
+    end = m[2] === "" ? size - 1 : Math.min(Number(m[2]), size - 1);
+  }
+  if (start >= size || start > end) return "invalid";
+  return { start, end };
+}
+
 export function contentType(key) {
   if (key.endsWith(".m3u8")) return "application/vnd.apple.mpegurl";
   if (key.endsWith(".ts")) return "video/mp2t";

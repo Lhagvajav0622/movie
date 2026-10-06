@@ -165,6 +165,11 @@ export const episodes = pgTable(
     name: text("name"),
     /** R2 key prefix of the HLS package, e.g. "v/<episodeId>" (master.m3u8 inside) */
     videoKey: text("video_key"),
+    /** Whole episode as one MP4 in R2 ("v/<id>/full.mp4"); paid viewers only */
+    fullMp4Key: text("full_mp4_key"),
+    /** Separate free clip ("v/<id>-pv/preview.mp4"); anyone can watch it. A clip without a full version = a free episode */
+    previewMp4Key: text("preview_mp4_key"),
+    previewDurationSec: integer("preview_duration_sec").notNull().default(0),
     /** Seconds per HLS segment (needed to enforce the free-preview limit) */
     segmentSec: integer("segment_sec").notNull().default(6),
     durationSec: integer("duration_sec").notNull().default(0),
