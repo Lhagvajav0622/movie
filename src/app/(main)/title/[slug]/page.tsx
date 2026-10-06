@@ -12,32 +12,59 @@ import { Poster } from "@/components/catalog/TitleCard";
 import { BuyButton } from "@/components/payment/BuyButton";
 import { IconPlay } from "@/components/ui/icons";
 
-export async function generateMetadata({ params }: PageProps<"/title/[slug]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/title/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const t = await getTitleMeta(slug).catch(() => null);
   if (!t) return { title: "Олдсонгүй" };
   return {
     title: t.name,
     description: t.description ?? undefined,
-    openGraph: { title: t.name, description: t.description ?? undefined, images: t.image ?? undefined },
+    openGraph: {
+      title: t.name,
+      description: t.description ?? undefined,
+      images: t.image ?? undefined,
+    },
   };
 }
 
 function metaParts(t: TitleDetail) {
   return [
     t.year,
-    t.type === "series" ? `${t.episodes.length} анги` : formatDuration(t.totalDurationSec),
+    t.type === "series"
+      ? `${t.episodes.length} анги`
+      : formatDuration(t.totalDurationSec),
     t.ageRating,
     "HD",
   ].filter(Boolean) as (string | number)[];
 }
 
-function Backdrop({ t, className = "" }: { t: TitleDetail; className?: string }) {
+function Backdrop({
+  t,
+  className = "",
+}: {
+  t: TitleDetail;
+  className?: string;
+}) {
   if (t.backdropUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={t.backdropUrl} alt="" className={`object-cover ${className}`} />;
+    return (
+      <img src={t.backdropUrl} alt="" className={`object-cover ${className}`} />
+    );
   }
-  return <Poster t={{ slug: t.slug, name: "", priceMnt: 0, hue: t.hue, posterUrl: t.posterUrl }} className={className} />;
+  return (
+    <Poster
+      t={{
+        slug: t.slug,
+        name: "",
+        priceMnt: 0,
+        hue: t.hue,
+        posterUrl: t.posterUrl,
+      }}
+      className={className}
+    />
+  );
 }
 
 function Info({ t }: { t: TitleDetail }) {
@@ -49,7 +76,9 @@ function Info({ t }: { t: TitleDetail }) {
   ];
   return (
     <div className="flex flex-col gap-3">
-      {t.description && <p className="text-body-2 leading-6 text-fg-muted">{t.description}</p>}
+      {t.description && (
+        <p className="text-body-2 leading-6 text-fg-muted">{t.description}</p>
+      )}
       <dl className="flex flex-col gap-1 text-body-2">
         {rows
           .filter(([, v]) => v)
@@ -81,7 +110,9 @@ function GenreChips({ genres }: { genres: string[] }) {
   );
 }
 
-export default async function TitlePage({ params }: PageProps<"/title/[slug]">) {
+export default async function TitlePage({
+  params,
+}: PageProps<"/title/[slug]">) {
   const { slug } = await params;
   const session = await getSession().catch(() => null);
   const t = await getTitleDetail(slug, session?.user.id);
@@ -117,20 +148,43 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
             >
               {playLabel}
             </Link>
-            <SaveButton titleId={t.id} slug={t.slug} initial={t.saved} variant="tab" disabled={t.isDemo} />
+            <SaveButton
+              titleId={t.id}
+              slug={t.slug}
+              initial={t.saved}
+              variant="tab"
+              disabled={t.isDemo}
+            />
           </div>
-          {needsPurchase && <BuyButton titleId={t.id} priceMnt={t.priceMnt} className="h-11 w-full text-[13px]" />}
+          {needsPurchase && (
+            <BuyButton
+              titleId={t.id}
+              priceMnt={t.priceMnt}
+              className="h-11 w-full text-[13px]"
+            />
+          )}
           {t.type === "series" ? (
             <DetailTabs
               tabs={[
-                { label: "Ангиуд", content: <EpisodeList slug={t.slug} episodes={t.episodes} hue={t.hue} /> },
+                {
+                  label: "Ангиуд",
+                  content: (
+                    <EpisodeList
+                      slug={t.slug}
+                      episodes={t.episodes}
+                      hue={t.hue}
+                    />
+                  ),
+                },
                 { label: "Дэлгэрэнгүй", content: <Info t={t} /> },
               ]}
             />
           ) : (
             <Info t={t} />
           )}
-          {similar.length > 0 && <TitleRow title="Ижил төстэй кино" items={similar} />}
+          {similar.length > 0 && (
+            <TitleRow title="Ижил төстэй кино" items={similar} />
+          )}
         </div>
       </div>
 
@@ -140,8 +194,9 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
           <div className="absolute inset-0">
             <Backdrop t={t} className="size-full" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-          <div className="relative flex max-w-[710px] flex-col gap-4">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="relative flex max-w-[710px] flex-col gap-4 [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
             <h1 className="text-h1 font-bold">{t.name}</h1>
             <div className="flex items-center gap-2 text-body font-medium tracking-[0.2px]">
               {metaParts(t).map((p) => (
@@ -150,7 +205,9 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
             </div>
             <GenreChips genres={t.genres} />
             {t.description && (
-              <p className="line-clamp-3 text-body font-medium tracking-[0.2px] text-fg-muted">{t.description}</p>
+              <p className="line-clamp-3 text-body font-medium tracking-[0.2px] text-fg-muted">
+                {t.description}
+              </p>
             )}
             <div className="flex items-center gap-4">
               <Link
@@ -160,8 +217,20 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
                 {playLabel}
                 <IconPlay />
               </Link>
-              <SaveButton titleId={t.id} slug={t.slug} initial={t.saved} variant="icon" disabled={t.isDemo} />
-              {needsPurchase && <BuyButton titleId={t.id} priceMnt={t.priceMnt} className="h-[59px] px-6 text-[15px]" />}
+              <SaveButton
+                titleId={t.id}
+                slug={t.slug}
+                initial={t.saved}
+                variant="icon"
+                disabled={t.isDemo}
+              />
+              {needsPurchase && (
+                <BuyButton
+                  titleId={t.id}
+                  priceMnt={t.priceMnt}
+                  className="h-[59px] px-6 text-[15px]"
+                />
+              )}
             </div>
           </div>
         </section>
@@ -178,7 +247,9 @@ export default async function TitlePage({ params }: PageProps<"/title/[slug]">) 
           <Info t={{ ...t, description: null }} />
         </section>
 
-        {similar.length > 0 && <TitleRow title="Ижил төстэй бүтээлүүд" items={similar} />}
+        {similar.length > 0 && (
+          <TitleRow title="Ижил төстэй бүтээлүүд" items={similar} />
+        )}
       </div>
     </>
   );

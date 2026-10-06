@@ -4,29 +4,45 @@ import { useState } from "react";
 import { IconArrowLeft } from "@/components/ui/icons";
 
 /** Mobile "Navigation Bar": back arrow + centered title. */
-export function BackBar({ title }: { title: string }) {
+/** `href` set → the arrow always goes there (e.g. Search → Home) instead of one step back in history. */
+export function BackBar({ title, href }: { title: string; href?: string }) {
   const router = useRouter();
   return (
     <div className="sticky top-0 z-30 flex h-14 items-center bg-black/90 backdrop-blur md:hidden">
       <button
         type="button"
         aria-label="Буцах"
-        onClick={() => (window.history.length > 1 ? router.back() : router.push("/"))}
+        onClick={() =>
+          href
+            ? router.push(href)
+            : window.history.length > 1
+              ? router.back()
+              : router.push("/")
+        }
         className="p-4"
       >
         <IconArrowLeft />
       </button>
-      <p className="absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-body font-bold tracking-[0.3px]">{title}</p>
+      <p className="absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-body font-bold tracking-[0.3px]">
+        {title}
+      </p>
     </div>
   );
 }
 
 /** Mobile "ContentNavigation" segmented control (Ангиуд / Дэлгэрэнгүй). */
-export function DetailTabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] }) {
+export function DetailTabs({
+  tabs,
+}: {
+  tabs: { label: string; content: React.ReactNode }[];
+}) {
   const [i, setI] = useState(0);
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" className="flex gap-2 rounded-[8.8px] border border-stroke bg-black p-0.5">
+      <div
+        role="tablist"
+        className="flex gap-2 rounded-[8.8px] border border-stroke bg-black p-0.5"
+      >
         {tabs.map((t, idx) => (
           <button
             key={t.label}

@@ -68,7 +68,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-4 md:gap-6 md:px-4 md:pt-6">
-      <BackBar title="Хайх" />
+      <BackBar title="Хайх" href="/" />
       <h1 className="hidden text-[28px] font-bold leading-9 md:block">{genre ?? "Хайх"}</h1>
 
       <div className="flex flex-col gap-4 px-4 md:px-0">
