@@ -1,4 +1,4 @@
-export type FastStart = "ok" | "moov-last" | "not-mp4";
+export type FastStart = "ok" | "moov-last" | "fragmented" | "not-mp4";
 
 /**
  * Checks that an MP4's "moov" box (the index a player needs first) comes before the "mdat" box (the video data).
@@ -17,7 +17,14 @@ export async function checkFastStart(
     let size = view.getUint32(0);
     const type = String.fromCharCode(h[4], h[5], h[6], h[7]);
     if (i === 0 && type !== "ftyp") return "not-mp4";
-    if (type === "moov") return "ok";
+    if (type === "moov") {
+      // Fragmented MP4 (e.g. downloaded from YouTube): the index is empty and the data sits in hundreds of tiny
+      // fragments, so browsers need many round trips before they can start. It must be remuxed to a normal MP4.
+      const moov = await read(offset, Math.min(size || 0, 1 << 20));
+      return new TextDecoder("latin1").decode(moov).includes("mvex")
+        ? "fragmented"
+        : "ok";
+    }
     if (type === "mdat") return "moov-last";
     if (size === 1) {
       if (h.length < 16) return "not-mp4";

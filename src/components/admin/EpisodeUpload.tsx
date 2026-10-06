@@ -112,6 +112,10 @@ export function EpisodeUpload({
         new Uint8Array(await f.slice(o, o + l).arrayBuffer());
       const fs = await checkFastStart(readAt(file), file.size);
       if (fs === "not-mp4") throw new Error("Энэ файл MP4 хэлбэр биш байна.");
+      if (fs === "fragmented")
+        throw new Error(
+          'Энэ MP4 "fragmented" хэлбэртэй (ихэвчлэн YouTube-аас татсан файл) тул хөтөч дээр удаан эхэлнэ. Компьютер дээрээ `npm run faststart -- "файл.mp4"` ажиллуулж энгийн MP4 болгоод (хэдхэн секунд, чанар буурахгүй) дахин оруулна уу.',
+        );
       let body: Blob = file;
       if (fs === "moov-last") {
         setNote("Файлыг тохируулж байна…");

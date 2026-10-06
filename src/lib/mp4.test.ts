@@ -83,3 +83,19 @@ test("not an mp4", async () => {
     assert.equal(dv.getUint32(idx + 4 + 8), chunkAt + moov.length);
   });
 }
+
+test("checkFastStart reports fragmented MP4 (moov with mvex)", async () => {
+  const enc = (t: string, payload: Uint8Array) => {
+    const o = new Uint8Array(8 + payload.length);
+    new DataView(o.buffer).setUint32(0, o.length);
+    o.set(new TextEncoder().encode(t), 4);
+    o.set(payload, 8);
+    return o;
+  };
+  const ftyp = enc("ftyp", new Uint8Array(8));
+  const moov = enc("moov", enc("mvex", new Uint8Array(8)));
+  const file = new Blob([ftyp, moov, enc("moof", new Uint8Array(8))]);
+  const read = async (o: number, l: number) =>
+    new Uint8Array(await file.slice(o, o + l).arrayBuffer());
+  assert.equal(await checkFastStart(read, file.size), "fragmented");
+});
