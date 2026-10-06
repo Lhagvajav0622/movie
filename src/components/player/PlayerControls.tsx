@@ -3,6 +3,29 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 
 const SKIP = 15;
 
+const Svg = ({ children }: { children: React.ReactNode }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    {children}
+  </svg>
+);
+const IconPlayS = () => (
+  <Svg>
+    <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
+  </Svg>
+);
+const IconPauseS = () => (
+  <Svg>
+    <rect x="6.5" y="5" width="4" height="14" rx="1" />
+    <rect x="13.5" y="5" width="4" height="14" rx="1" />
+  </Svg>
+);
+const IconVolume = ({ off }: { off: boolean }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M11 5 6 9H3v6h3l5 4V5Z" fill="currentColor" />
+    {off ? <path d="m16 9 5 6m0-6-5 6" /> : <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />}
+  </svg>
+);
+
 function fmt(sec: number) {
   if (!isFinite(sec) || sec < 0) sec = 0;
   const h = Math.floor(sec / 3600);
@@ -73,7 +96,7 @@ export function PlayerControls({
 
   const shown = dragging ?? time;
   const pct = duration ? (shown / duration) * 100 : 0;
-  const btn = "grid size-10 place-items-center rounded-full text-[11px] font-bold hover:bg-white/15 active:bg-white/25";
+  const btn = "grid size-10 shrink-0 place-items-center rounded-full text-[12px] font-bold hover:bg-white/15 active:bg-white/25";
 
   return (
     <div className={`flex flex-col gap-1 ${className}`} onClick={(e) => e.stopPropagation()}>
@@ -112,17 +135,17 @@ export function PlayerControls({
         />
       </div>
 
-      <div className="flex items-center gap-1 text-body-2">
+      <div className="flex items-center gap-0.5 text-body-2">
         <button type="button" className={btn} onClick={() => skip(-SKIP)} aria-label={`${SKIP} секунд ухраах`}>
-          ↺{SKIP}
+          −{SKIP}
         </button>
         <button type="button" className={btn} onClick={toggle} aria-label={paused ? "Тоглуулах" : "Зогсоох"}>
-          {paused ? "▶" : "❚❚"}
+          {paused ? <IconPlayS /> : <IconPauseS />}
         </button>
         <button type="button" className={btn} onClick={() => skip(SKIP)} aria-label={`${SKIP} секунд урагшлуулах`}>
-          {SKIP}↻
+          +{SKIP}
         </button>
-        <span className="ml-1 tabular-nums text-fg-muted">
+        <span className="ml-1 whitespace-nowrap text-[12px] tabular-nums text-fg-muted">
           {fmt(shown)} / {fmt(duration)}
         </span>
         <div className="ml-auto flex items-center gap-1">
@@ -150,7 +173,7 @@ export function PlayerControls({
               if (v) v.muted = !v.muted;
             }}
           >
-            {muted || volume === 0 ? "🔇" : "🔊"}
+            <IconVolume off={muted || volume === 0} />
           </button>
         </div>
       </div>

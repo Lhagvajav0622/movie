@@ -79,8 +79,8 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
             ) : (
               <div className="size-full bg-black" />
             )}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/80 to-transparent" />
-            <div className="absolute bottom-[max(24px,env(safe-area-inset-bottom))] left-4 right-20">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+            <div className="absolute bottom-[calc(max(12px,env(safe-area-inset-bottom))+92px)] left-4 right-20">
               <p className="text-body font-bold">{titleName}</p>
               <p className="text-body-2 text-fg-muted">
                 {ep.number}-р анги / {episodes.length}
@@ -99,11 +99,11 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
       </div>
 
       {/* Right rail */}
-      <div className="absolute bottom-28 right-3 flex flex-col items-center gap-5">
+      <div className="absolute bottom-[calc(max(12px,env(safe-area-inset-bottom))+92px)] right-3 flex flex-col items-center gap-5">
         <button
           type="button"
           onClick={() => setSheet(true)}
-          className="glass grid size-12 place-items-center rounded-2xl text-caption font-semibold"
+          className="glass grid size-11 place-items-center rounded-full text-caption font-semibold"
           aria-label="Ангиуд"
         >
           {episodes[active]?.number ?? 1}
@@ -200,7 +200,8 @@ function ReelItem({
 }) {
   const { videoRef, state, previewEnded } = usePlayback(episode.id, active);
   const [paused, setPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
+  // A 16:9 file inside a vertical feed is shown whole instead of being cropped to the middle.
+  const [landscape, setLandscape] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -222,7 +223,8 @@ function ReelItem({
         playsInline
         preload="auto"
         poster={episode.thumbnailUrl ?? undefined}
-        className="size-full object-cover md:object-contain"
+        className={`size-full ${landscape ? "object-contain" : "object-cover md:object-contain"}`}
+        onLoadedMetadata={(e) => setLandscape(e.currentTarget.videoWidth > e.currentTarget.videoHeight)}
         onClick={(e) => {
           const v = e.currentTarget;
           if (v.paused) v.play().catch(() => {});
@@ -230,17 +232,13 @@ function ReelItem({
         }}
         onPlay={() => setPaused(false)}
         onPause={() => setPaused(true)}
-        onTimeUpdate={(e) => {
-          const v = e.currentTarget;
-          if (v.duration) setProgress(v.currentTime / v.duration);
-        }}
         onEnded={() => {
           if (state.status === "ready" && state.info.access === "full") onEnded();
         }}
       />
       {paused && state.status === "ready" && !previewEnded && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <span className="glass grid size-16 place-items-center rounded-2xl">
+          <span className="grid size-16 place-items-center rounded-full bg-black/45 backdrop-blur-sm">
             <IconPlayLarge />
           </span>
         </div>
@@ -249,12 +247,9 @@ function ReelItem({
         <PlayerControls
           videoRef={videoRef}
           limitSec={state.info.access === "preview" ? state.info.allowedSec : null}
-          className="absolute inset-x-4 bottom-[88px] z-10 md:left-1/2 md:right-auto md:w-[520px] md:-translate-x-1/2"
+          className="absolute inset-x-4 bottom-[max(12px,env(safe-area-inset-bottom))] z-10 md:left-1/2 md:right-auto md:w-[520px] md:-translate-x-1/2"
         />
       )}
-      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/15">
-        <div className="h-full bg-brand-400" style={{ width: `${progress * 100}%` }} />
-      </div>
       {active && <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} />}
     </div>
   );
