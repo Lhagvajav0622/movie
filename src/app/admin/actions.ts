@@ -30,8 +30,12 @@ const titleSchema = z.object({
   country: optionalText,
   director: optionalText,
   castText: optionalText,
-  posterUrl: optionalText.pipe(z.string().url("Постерын холбоос буруу").nullable()),
-  backdropUrl: optionalText.pipe(z.string().url("Арын зургийн холбоос буруу").nullable()),
+  posterUrl: optionalText.pipe(
+    z.string().url("Постерын холбоос буруу").nullable(),
+  ),
+  backdropUrl: optionalText.pipe(
+    z.string().url("Арын зургийн холбоос буруу").nullable(),
+  ),
   priceMnt: z.coerce.number().int().min(0, "Үнэ сөрөг байж болохгүй"),
   freePreviewMin: z.coerce.number().min(0).max(600),
   isFeatured: z.boolean(),
@@ -41,7 +45,10 @@ const titleSchema = z.object({
 
 export type TitleFormState = { error?: string; ok?: boolean } | undefined;
 
-export async function saveTitle(_prev: TitleFormState, form: FormData): Promise<TitleFormState> {
+export async function saveTitle(
+  _prev: TitleFormState,
+  form: FormData,
+): Promise<TitleFormState> {
   if (!(await requireAdmin())) return { error: "Админ эрх шаардлагатай." };
 
   const id = String(form.get("id") ?? "") || null;
@@ -65,17 +72,23 @@ export async function saveTitle(_prev: TitleFormState, form: FormData): Promise<
     status: form.get("status") === "published" ? "published" : "draft",
     genreIds: form.getAll("genreIds").map(String),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Мэдээлэл буруу байна." };
+  if (!parsed.success)
+    return {
+      error: parsed.error.issues[0]?.message ?? "Мэдээлэл буруу байна.",
+    };
 
   const d = parsed.data;
   const slug = slugify(d.slug || d.name) || `title-${Date.now()}`;
-  if (await slugTaken(slug, id ?? undefined)) return { error: `"${slug}" хаяг өөр бүтээлд ашиглагдсан байна.` };
+  if (await slugTaken(slug, id ?? undefined))
+    return { error: `"${slug}" хаяг өөр бүтээлд ашиглагдсан байна.` };
 
   const values = {
     slug,
     name: d.name,
     nameOriginal: d.nameOriginal,
-    searchText: `${d.name} ${d.nameOriginal ?? ""}`.toLocaleLowerCase("mn").trim(),
+    searchText: `${d.name} ${d.nameOriginal ?? ""}`
+      .toLocaleLowerCase("mn")
+      .trim(),
     description: d.description,
     type: d.type,
     orientation: d.orientation,
@@ -102,18 +115,35 @@ export async function saveTitle(_prev: TitleFormState, form: FormData): Promise<
         .where(eq(schema.titles.id, titleId));
       await tx
         .update(schema.titles)
-        .set({ ...values, publishedAt: d.status === "published" ? (prev?.publishedAt ?? new Date()) : prev?.publishedAt })
+        .set({
+          ...values,
+          publishedAt:
+            d.status === "published"
+              ? (prev?.publishedAt ?? new Date())
+              : prev?.publishedAt,
+        })
         .where(eq(schema.titles.id, titleId));
     } else {
       const [row] = await tx
         .insert(schema.titles)
-        .values({ ...values, publishedAt: d.status === "published" ? new Date() : null })
+        .values({
+          ...values,
+          publishedAt: d.status === "published" ? new Date() : null,
+        })
         .returning({ id: schema.titles.id });
       titleId = row.id;
+      // Episode 1 is ready right away, so the video upload slots show up after the first save.
+      await tx
+        .insert(schema.episodes)
+        .values({ titleId, number: 1, status: "processing" });
     }
-    await tx.delete(schema.titleGenres).where(eq(schema.titleGenres.titleId, titleId!));
+    await tx
+      .delete(schema.titleGenres)
+      .where(eq(schema.titleGenres.titleId, titleId!));
     if (d.genreIds.length) {
-      await tx.insert(schema.titleGenres).values(d.genreIds.map((genreId) => ({ titleId: titleId!, genreId })));
+      await tx
+        .insert(schema.titleGenres)
+        .values(d.genreIds.map((genreId) => ({ titleId: titleId!, genreId })));
     }
   });
 
@@ -133,7 +163,10 @@ export async function deleteTitle(form: FormData) {
     .limit(1);
   if (hasOrders) {
     // Keep sales history intact: unpublish instead of deleting.
-    await db.update(schema.titles).set({ status: "draft", updatedAt: new Date() }).where(eq(schema.titles.id, id));
+    await db
+      .update(schema.titles)
+      .set({ status: "draft", updatedAt: new Date() })
+      .where(eq(schema.titles.id, id));
   } else {
     await db.delete(schema.titles).where(eq(schema.titles.id, id));
   }
@@ -147,22 +180,32 @@ export async function addEpisode(form: FormData) {
   if (!(await requireAdmin())) throw new Error("Unauthorized");
   const titleId = String(form.get("titleId"));
   const [last] = await db
-    .select({ n: sql<number>`coalesce(max(${schema.episodes.number}), 0)::int` })
+    .select({
+      n: sql<number>`coalesce(max(${schema.episodes.number}), 0)::int`,
+    })
     .from(schema.episodes)
     .where(eq(schema.episodes.titleId, titleId));
-  await db.insert(schema.episodes).values({ titleId, number: (last?.n ?? 0) + 1, status: "processing" });
+  await db
+    .insert(schema.episodes)
+    .values({ titleId, number: (last?.n ?? 0) + 1, status: "processing" });
   revalidatePath(`/admin/titles/${titleId}`);
 }
 
 export async function deleteEpisode(form: FormData) {
   if (!(await requireAdmin())) throw new Error("Unauthorized");
   const id = String(form.get("episodeId"));
-  const [ep] = await db.select().from(schema.episodes).where(eq(schema.episodes.id, id)).limit(1);
+  const [ep] = await db
+    .select()
+    .from(schema.episodes)
+    .where(eq(schema.episodes.id, id))
+    .limit(1);
   if (!ep) return;
   await db.delete(schema.episodes).where(eq(schema.episodes.id, id));
-  const { deleteObjects, imageStorageConfigured } = await import("@/server/storage");
+  const { deleteObjects, imageStorageConfigured } =
+    await import("@/server/storage");
   const { mp4Keys } = await import("@/server/video");
-  if (imageStorageConfigured()) await deleteObjects([mp4Keys(id).full.key, mp4Keys(id).preview.key]);
+  if (imageStorageConfigured())
+    await deleteObjects([mp4Keys(id).full.key, mp4Keys(id).preview.key]);
   revalidatePath(`/admin/titles/${ep.titleId}`);
   revalidatePath("/");
 }

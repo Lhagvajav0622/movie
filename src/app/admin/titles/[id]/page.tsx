@@ -47,8 +47,8 @@ export default async function EditTitlePage({
       </div>
       {created && (
         <p className="mb-4 rounded-lg bg-emerald-500/10 px-4 py-3 text-body-2 text-emerald-300">
-          Бүтээл үүслээ. Дараагийн алхам: доор анги нэмээд MP4 файлуудаа
-          оруулна.
+          Бүтээл үүслээ. Дараагийн алхам: доорх «Ангиуд» хэсэгт MP4 файлуудаа
+          оруулна (кино бол 1-р анги дээр, цуврал бол «+ Анги нэмэх»).
         </p>
       )}
 

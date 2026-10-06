@@ -18,7 +18,10 @@ export default async function Page() {
     <div className="mx-auto max-w-5xl">
       <h1 className="text-h4 font-bold">Захиалга</h1>
       <p className="mt-2 text-body-2 text-fg-muted">
-        Төлбөрийн горим: <b>{paymentMode() === "test" ? "ТЕСТ (бодит төлбөр хийгдэхгүй)" : "LIVE"}</b>
+        Төлбөрийн горим:{" "}
+        <b>
+          {paymentMode() === "test" ? "ТЕСТ (бодит төлбөр хийгдэхгүй)" : "LIVE"}
+        </b>
       </p>
       <div className="mt-5 overflow-x-auto rounded-2xl border border-stroke">
         <table className="w-full text-left text-body-2">
@@ -39,13 +42,21 @@ export default async function Page() {
                 <td className="px-4 py-3 font-mono">{o.code}</td>
                 <td className="px-4 py-3">{o.userPhone ?? o.userName}</td>
                 <td className="px-4 py-3">{o.titleName}</td>
-                <td className="px-4 py-3">{o.amountMnt.toLocaleString("mn-MN")}₮</td>
+                <td className="px-4 py-3">
+                  {o.amountMnt.toLocaleString("mn-MN")}₮
+                </td>
                 <td className="px-4 py-3">
                   {o.method === "socialpay" ? "SocialPay" : "QPay"}
-                  {o.isTest && <span className="ml-1 rounded bg-brand-500/20 px-1.5 py-0.5 text-caption">тест</span>}
+                  {o.isTest && (
+                    <span className="ml-1 rounded bg-brand-500/20 px-1.5 py-0.5 text-caption">
+                      тест
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3">{STATUS[o.status] ?? o.status}</td>
-                <td className="px-4 py-3 text-fg-muted">{o.createdAt.toLocaleString("mn-MN")}</td>
+                <td className="px-4 py-3 text-fg-muted">
+                  {o.createdAt.toLocaleString("mn-MN")}
+                </td>
               </tr>
             ))}
             {!rows.length && (
