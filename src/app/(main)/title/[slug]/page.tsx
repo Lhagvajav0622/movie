@@ -140,7 +140,7 @@ export default async function TitlePage({
     return (
       <InlineWatch episodes={t.episodes}>
         <div className="mx-auto max-w-[1120px] md:px-4 md:pt-6">
-          <BackBar title={t.name} href="/" />
+          <BackBar title={t.name} />
           <FilmStage
             titleId={t.id}
             priceMnt={t.priceMnt}
