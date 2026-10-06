@@ -73,7 +73,8 @@ async function serveMp4(request, env, key, cors) {
   const head = await env.VIDEOS.head(key);
   if (!head) return deny(404, cors);
   const range = parseRange(request.headers.get("Range"), head.size);
-  const base = { ...cors, "Content-Type": "video/mp4", "Accept-Ranges": "bytes", "Cache-Control": "private, no-store" };
+  const base = { ...cors, "Content-Type": "video/mp4", "Accept-Ranges": "bytes", // Not "no-store": Chrome then keeps no media data and re-requests small ranges over and over, so playback crawls.
+    "Cache-Control": "private, max-age=3600", ETag: head.httpEtag };
   if (range === "invalid") return new Response(null, { status: 416, headers: { ...base, "Content-Range": `bytes */${head.size}` } });
   if (!range) {
     const obj = await env.VIDEOS.get(key);
