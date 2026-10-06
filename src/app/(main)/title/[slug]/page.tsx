@@ -11,6 +11,12 @@ import { TitleRow } from "@/components/catalog/TitleRow";
 import { Poster } from "@/components/catalog/TitleCard";
 import { BuyButton } from "@/components/payment/BuyButton";
 import { IconPlay } from "@/components/ui/icons";
+import {
+  FilmStage,
+  InlineEpisodes,
+  InlineWatch,
+  PlayButton,
+} from "@/components/player/InlineWatch";
 
 export async function generateMetadata({
   params,
@@ -48,8 +54,8 @@ function Backdrop({
   className?: string;
 }) {
   if (t.backdropUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img src={t.backdropUrl} alt="" className={`object-cover ${className}`} />
     );
   }
@@ -122,6 +128,121 @@ export default async function TitlePage({
   const needsPurchase = t.priceMnt > 0 && !t.owned;
   const similar = t.similar.map((s) => ({ ...s, hue: s.hue }));
   const playLabel = t.owned || t.priceMnt === 0 ? "Тоглуулах" : "Үнэгүй үзэх";
+
+  if (t.orientation !== "vertical" && t.episodes.length > 0) {
+    const metaRow = (
+      <div className="flex items-center gap-2 text-caption font-medium leading-[22px] md:text-body md:tracking-[0.2px]">
+        {metaParts(t).map((p) => (
+          <span key={String(p)}>{p}</span>
+        ))}
+      </div>
+    );
+    return (
+      <InlineWatch episodes={t.episodes}>
+        <div className="mx-auto max-w-[1120px] md:px-4 md:pt-6">
+          <BackBar title={t.name} href="/" />
+          <FilmStage
+            titleId={t.id}
+            priceMnt={t.priceMnt}
+            backdrop={<Backdrop t={t} className="size-full" />}
+            overlay={
+              <div className="relative flex max-w-[710px] flex-col gap-4 [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
+                <h1 className="text-h1 font-bold">{t.name}</h1>
+                {metaRow}
+                <GenreChips genres={t.genres} />
+                {t.description && (
+                  <p className="line-clamp-3 text-body font-medium tracking-[0.2px] text-fg-muted">
+                    {t.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-4">
+                  <PlayButton className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] hover:bg-brand-400">
+                    {playLabel}
+                    <IconPlay />
+                  </PlayButton>
+                  <SaveButton
+                    titleId={t.id}
+                    slug={t.slug}
+                    initial={t.saved}
+                    variant="icon"
+                    disabled={t.isDemo}
+                  />
+                  {needsPurchase && (
+                    <BuyButton
+                      titleId={t.id}
+                      priceMnt={t.priceMnt}
+                      className="h-[59px] px-6 text-[15px]"
+                    />
+                  )}
+                </div>
+              </div>
+            }
+          />
+
+          {/* Mobile: info + buttons under the player */}
+          <div className="flex flex-col gap-4 px-4 pt-4 md:hidden">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-[20px] font-bold leading-7">{t.name}</h1>
+              {metaRow}
+              <GenreChips genres={t.genres} />
+            </div>
+            <div className="flex items-center gap-2">
+              <PlayButton className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]">
+                {playLabel}
+              </PlayButton>
+              <SaveButton
+                titleId={t.id}
+                slug={t.slug}
+                initial={t.saved}
+                variant="tab"
+                disabled={t.isDemo}
+              />
+            </div>
+            {needsPurchase && (
+              <BuyButton
+                titleId={t.id}
+                priceMnt={t.priceMnt}
+                className="h-11 w-full text-[13px]"
+              />
+            )}
+            {t.type === "series" ? (
+              <DetailTabs
+                tabs={[
+                  {
+                    label: "Ангиуд",
+                    content: <InlineEpisodes slug={t.slug} hue={t.hue} />,
+                  },
+                  { label: "Дэлгэрэнгүй", content: <Info t={t} /> },
+                ]}
+              />
+            ) : (
+              <Info t={t} />
+            )}
+            {similar.length > 0 && (
+              <TitleRow title="Ижил төстэй кино" items={similar} />
+            )}
+          </div>
+
+          {/* Desktop: episodes, info, similar */}
+          <div className="hidden flex-col gap-10 pt-10 md:flex">
+            {t.type === "series" && (
+              <section className="flex flex-col gap-4">
+                <h2 className="text-[28px] font-bold leading-9">Ангиуд</h2>
+                <InlineEpisodes slug={t.slug} hue={t.hue} />
+              </section>
+            )}
+            <section className="flex flex-col gap-4">
+              <h2 className="text-[28px] font-bold leading-9">Мэдээлэл</h2>
+              <Info t={{ ...t, description: null }} />
+            </section>
+            {similar.length > 0 && (
+              <TitleRow title="Ижил төстэй бүтээлүүд" items={similar} />
+            )}
+          </div>
+        </div>
+      </InlineWatch>
+    );
+  }
 
   return (
     <>
