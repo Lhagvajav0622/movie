@@ -11,6 +11,9 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+/** Env values pasted into dashboards often carry spaces, newlines or quotes. */
+const clean = (v?: string) => (v ?? "").trim().replace(/^["']|["']$/g, "");
+
 export const imageStorageConfigured = () =>
   Boolean(
     process.env.R2_ACCOUNT_ID &&
@@ -23,10 +26,10 @@ let client: S3Client | null = null;
 function s3() {
   client ??= new S3Client({
     region: "auto",
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: `https://${clean(process.env.R2_ACCOUNT_ID)}.r2.cloudflarestorage.com`,
     credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      accessKeyId: clean(process.env.R2_ACCESS_KEY_ID),
+      secretAccessKey: clean(process.env.R2_SECRET_ACCESS_KEY),
     },
   });
   return client;
