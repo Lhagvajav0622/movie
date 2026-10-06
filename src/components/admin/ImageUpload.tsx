@@ -37,7 +37,7 @@ export function ImageUpload({ onChange, maxWidth }: { onChange: (url: string) =>
       body.append("file", new File([blob], "image.webp", { type: "image/webp" }));
       const res = await fetch("/api/admin/upload-image", { method: "POST", body });
       const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(ERRORS[j.code] ?? "Upload амжилтгүй. Дахин оролдоно уу.");
+      if (!res.ok) throw new Error(ERRORS[j.code] ?? `Upload амжилтгүй${j.detail ? `: ${j.detail}` : j.code ? ` (${j.code})` : ""}`);
       onChange(j.url);
     } catch (e) {
       setError(e instanceof Error && e.message !== "encode" ? e.message : "Зургийг боловсруулж чадсангүй.");

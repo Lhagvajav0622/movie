@@ -17,7 +17,9 @@ export async function POST(req: Request) {
   try {
     const url = await putImage(new Uint8Array(await file.arrayBuffer()), file.type);
     return NextResponse.json({ url });
-  } catch {
-    return NextResponse.json({ code: "UPLOAD_FAILED" }, { status: 502 });
+  } catch (e) {
+    // Admin-only route: show the storage error name/message (never contains the keys) so setup problems are visible.
+    const detail = e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 200) : "unknown";
+    return NextResponse.json({ code: "UPLOAD_FAILED", detail }, { status: 502 });
   }
 }

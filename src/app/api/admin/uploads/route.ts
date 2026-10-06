@@ -67,7 +67,8 @@ export async function POST(req: Request) {
       )
       .where(eq(schema.episodes.id, ep.id));
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ code: "UPLOAD_FAILED" }, { status: 502 });
+  } catch (e) {
+    const detail = e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 200) : "unknown";
+    return NextResponse.json({ code: "UPLOAD_FAILED", detail }, { status: 502 });
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { checkFastStart } from "@/lib/mp4";
+import { checkFastStart, makeFastStart } from "@/lib/mp4";
 
 type Props = {
   episodeId: string;
@@ -26,7 +26,10 @@ async function api(body: object) {
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok)
-    throw new Error(ERRORS[j.code] ?? "Серверийн алдаа. Дахин оролдоно уу.");
+    throw new Error(
+      ERRORS[j.code] ??
+        `Серверийн алдаа${j.detail ? `: ${j.detail}` : j.code ? ` (${j.code})` : ""}`,
+    );
   return j;
 }
 
@@ -93,6 +96,7 @@ export function EpisodeUpload({
   const [busy, setBusy] = useState(false);
   const [pct, setPct] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
 
   async function upload(file: File) {
     setBusy(true);
@@ -104,16 +108,24 @@ export function EpisodeUpload({
     try {
       if (!/\.mp4$/i.test(file.name) && file.type !== "video/mp4")
         throw new Error("Зөвхөн .mp4 файл оруулна уу.");
-      const fs = await checkFastStart(
-        async (o, l) =>
-          new Uint8Array(await file.slice(o, o + l).arrayBuffer()),
-        file.size,
-      );
+      const readAt = (f: Blob) => async (o: number, l: number) =>
+        new Uint8Array(await f.slice(o, o + l).arrayBuffer());
+      const fs = await checkFastStart(readAt(file), file.size);
       if (fs === "not-mp4") throw new Error("Энэ файл MP4 хэлбэр биш байна.");
-      if (fs === "moov-last")
-        throw new Error(
-          'Файл "faststart" биш тул шууд тоглохгүй. Компьютер дээрээ `npm run faststart -- "файл.mp4"` ажиллуулж засаад дахин оруулна уу (хэдхэн секунд, чанар буурахгүй).',
-        );
+      let body: Blob = file;
+      if (fs === "moov-last") {
+        setNote("Файлыг тохируулж байна…");
+        try {
+          body = await makeFastStart(file);
+        } catch {
+          throw new Error(
+            "Файлыг автоматаар тохируулж чадсангүй. Өөр MP4 (H.264) оруулж үзнэ үү.",
+          );
+        }
+        if ((await checkFastStart(readAt(body), body.size)) !== "ok")
+          throw new Error("Файлыг автоматаар тохируулж чадсангүй.");
+        setNote(null);
+      }
       const durationSec = await readDuration(file).catch((e) => {
         throw new Error(
           e.message === "codec"
@@ -126,7 +138,7 @@ export function EpisodeUpload({
         action: "start",
         episodeId,
         kind,
-        size: file.size,
+        size: body.size,
       });
       session = start;
       const { uploadId, partSize, partCount } = start as {
@@ -139,7 +151,7 @@ export function EpisodeUpload({
         setPct(
           Math.min(
             99,
-            Math.floor((loaded.reduce((a, b) => a + b, 0) / file.size) * 100),
+            Math.floor((loaded.reduce((a, b) => a + b, 0) / body.size) * 100),
           ),
         );
       const etags: { partNumber: number; etag: string }[] = [];
@@ -166,9 +178,9 @@ export function EpisodeUpload({
             partNumber: number;
             url: string;
           }[]) {
-            const blob = file.slice(
+            const blob = body.slice(
               (partNumber - 1) * partSize,
-              Math.min(file.size, partNumber * partSize),
+              Math.min(body.size, partNumber * partSize),
             );
             const etag = await putPart(url, blob, (l) => {
               loaded[partNumber - 1] = l;
@@ -203,6 +215,7 @@ export function EpisodeUpload({
     } finally {
       window.removeEventListener("beforeunload", warn);
       setBusy(false);
+      setNote(null);
       if (input.current) input.current.value = "";
     }
   }
@@ -226,7 +239,7 @@ export function EpisodeUpload({
           className="rounded-lg border border-stroke px-3 py-1.5 text-body-2 hover:border-brand-500 disabled:opacity-50"
         >
           {busy
-            ? `Оруулж байна… ${pct}%`
+            ? (note ?? `Оруулж байна… ${pct}%`)
             : uploadedMin !== null
               ? "Солих"
               : "MP4 сонгох"}
