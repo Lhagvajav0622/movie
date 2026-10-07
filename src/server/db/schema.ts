@@ -276,3 +276,12 @@ export const purchases = pgTable(
   },
   (t) => [primaryKey({ columns: [t.userId, t.titleId] })],
 );
+
+/** "Pro" access granted by an admin: the user can watch every title until `expiresAt` (null = no end). */
+export const userAccess = pgTable("user_access", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

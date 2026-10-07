@@ -4,6 +4,7 @@ import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { db, schema } from "./db";
 import { attachGenres } from "./catalog";
 import { episodeAccess } from "./access";
+import { hasTitleAccess } from "./grants";
 import { demoTitles } from "@/lib/demo";
 
 export type EpisodeView = {
@@ -74,20 +75,14 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
   if (!t) return null;
 
   // Independent queries run at the same time (each one is a network round trip to the database).
-  const [[withGenres], eps, ownedRows, savedRows, genreIds] = await Promise.all([
+  const [[withGenres], eps, ownedAccess, savedRows, genreIds] = await Promise.all([
     attachGenres([t]),
     db
       .select()
       .from(schema.episodes)
       .where(and(eq(schema.episodes.titleId, t.id), eq(schema.episodes.status, "ready")))
       .orderBy(asc(schema.episodes.number)),
-    userId
-      ? db
-          .select({ u: schema.purchases.userId })
-          .from(schema.purchases)
-          .where(and(eq(schema.purchases.userId, userId), eq(schema.purchases.titleId, t.id)))
-          .limit(1)
-      : Promise.resolve([]),
+    userId ? hasTitleAccess(userId, t.id) : Promise.resolve(false),
     userId
       ? db
           .select({ u: schema.savedTitles.userId })
@@ -97,7 +92,7 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
       : Promise.resolve([]),
     db.select({ id: schema.titleGenres.genreId }).from(schema.titleGenres).where(eq(schema.titleGenres.titleId, t.id)),
   ]);
-  const owned = ownedRows.length > 0;
+  const owned = ownedAccess;
   const saved = savedRows.length > 0;
 
   const lite = eps.map((e) => ({

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, asc, eq } from "drizzle-orm";
 import { db, schema } from "@/server/db";
+import { hasTitleAccess } from "@/server/grants";
 import { getSession } from "@/server/auth";
 import { episodeAccess } from "@/server/access";
 import { signMp4Url, signPlaybackUrl, videoConfigured } from "@/server/video";
@@ -30,12 +31,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   let owned = false;
   let resumeSec = 0;
   if (userId) {
-    const [p] = await db
-      .select({ u: schema.purchases.userId })
-      .from(schema.purchases)
-      .where(and(eq(schema.purchases.userId, userId), eq(schema.purchases.titleId, title.id)))
-      .limit(1);
-    owned = Boolean(p);
+    owned = await hasTitleAccess(userId, title.id);
     const [w] = await db
       .select({ pos: schema.watchProgress.positionSec, done: schema.watchProgress.completed })
       .from(schema.watchProgress)
