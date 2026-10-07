@@ -70,6 +70,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
               <ReelItem
                 episode={ep}
                 active={i === active}
+                near={i === active + 1}
                 titleId={titleId}
                 priceMnt={priceMnt}
                
@@ -186,6 +187,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
 function ReelItem({
   episode,
   active,
+  near,
   titleId,
   priceMnt,
   onEnded,
@@ -193,12 +195,14 @@ function ReelItem({
 }: {
   episode: EpisodeView;
   active: boolean;
+  /** The next episode: its first bytes are fetched ahead so switching does not wait. */
+  near: boolean;
   titleId: string;
   priceMnt: number;
   onEnded: () => void;
   onSoundBlocked: (b: boolean) => void;
 }) {
-  const { videoRef, state, previewEnded } = usePlayback(episode.id, active);
+  const { videoRef, state, previewEnded } = usePlayback(episode.id, active || near);
   const [paused, setPaused] = useState(false);
   // A 16:9 file inside a vertical feed is shown whole instead of being cropped to the middle.
   const [landscape, setLandscape] = useState(false);
@@ -221,7 +225,7 @@ function ReelItem({
         ref={videoRef}
         data-active={active}
         playsInline
-        preload="auto"
+        preload={active ? "auto" : "metadata"}
         poster={episode.thumbnailUrl ?? undefined}
         className={`size-full ${landscape ? "object-contain" : "object-cover md:object-contain"}`}
         onLoadedMetadata={(e) => setLandscape(e.currentTarget.videoWidth > e.currentTarget.videoHeight)}

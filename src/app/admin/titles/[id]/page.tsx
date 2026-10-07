@@ -70,6 +70,29 @@ export default async function EditTitlePage({
           Цуврал дээр үнэгүй анги байлгах бол зөвхөн «үнэгүй хэсэг» талбарт нь
           бүтэн ангиа оруулна.
         </p>
+        <details className="mt-2 text-body-2 text-fg-muted">
+          <summary className="cursor-pointer text-fg">
+            Видео бэлтгэх зөвлөмж
+          </summary>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>
+              CapCut, Premiere, DaVinci зэргээс{" "}
+              <b>MP4 (H.264 видео, AAC дуу)</b> хэлбэрээр экспортолно.
+            </li>
+            <li>
+              YouTube зэрэг сайтаас татсан файл ихэвчлэн «fragmented» байдаг тул
+              удаан эхэлнэ. Ийм файлыг эхлээд CapCut-аар дахин экспортолно.
+            </li>
+            <li>
+              720p, bitrate дунд зэрэг (≈1.5–2 Mbit/s): 1 цаг ≈ 0.7–0.9 GB.
+              «Highest» сонгох хэрэггүй, файл хэт том болно.
+            </li>
+            <li>
+              Оруулах явцад хуудсаа битгий хаа. Том файл таны upload хурдаас
+              хамаарна.
+            </li>
+          </ul>
+        </details>
         {episodes.length > 0 ? (
           <ul className="mt-4 flex flex-col gap-4">
             {episodes.map((e) => (

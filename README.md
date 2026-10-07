@@ -91,5 +91,13 @@ One-time setup:
 2. `npm run r2:cors -- https://<your-site>` (lets the browser PUT parts to the bucket).
 3. Redeploy the Worker (`cd worker && npx wrangler deploy`) so it serves MP4 with Range and `/img/*`.
 
+### Preparing video (rules of thumb)
+- Export from CapCut / Premiere / DaVinci as **MP4, H.264 video + AAC audio**. Do not upload files downloaded from YouTube
+  directly: they are usually *fragmented* MP4 (hundreds of tiny fragments), which makes browsers issue ~150 small
+  requests before playback starts. The admin page detects this and refuses; re-export in an editor, or remux with
+  `npm run faststart -- "file.mp4"` (no re-encode).
+- 720p at about 1.5–2 Mbit/s: 1 hour is roughly 0.7–0.9 GB. Avoid "highest quality" exports.
+- Inspect a problem file with `node scripts/mp4info.mjs "file.mp4"` (index position, fragments, bitrate, interleaving).
+
 Files must be H.264 + AAC MP4 with the index at the front ("faststart"). The admin page checks this and tells you;
 `npm run faststart -- "file.mp4"` fixes a file in seconds without re-encoding. Legacy HLS uploads (`npm run video`) still work.
