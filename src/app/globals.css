@@ -84,3 +84,12 @@ a[href] {
   transition-property: transform, opacity, background-color, color, border-color;
   transition-duration: 120ms;
 }
+
+/* "+18" titles: posters stay blurred (with a "+18" badge) until the viewer confirms they are 18 or older. */
+[data-adult-label] { display: none; }
+html:not([data-age18="1"]) [data-adult] {
+  filter: blur(14px);
+  scale: 1.15;
+}
+html:not([data-age18="1"]) [data-adult-label] { display: flex; }
+html[data-age18="1"] [data-age-gate] { display: none; }

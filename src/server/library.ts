@@ -12,6 +12,7 @@ const titleCols = {
   type: titles.type,
   posterUrl: titles.posterUrl,
   priceMnt: titles.priceMnt,
+  adult: titles.isAdult,
 };
 
 export async function listSaved(userId: string) {

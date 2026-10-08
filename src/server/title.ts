@@ -16,7 +16,7 @@ export type EpisodeView = {
   access: "full" | "preview" | "clip" | "locked";
 };
 
-export type SimilarView = { slug: string; name: string; year: number | null; posterUrl: string | null; priceMnt: number; hue?: number };
+export type SimilarView = { adult?: boolean; slug: string; name: string; year: number | null; posterUrl: string | null; priceMnt: number; hue?: number };
 
 export type TitleDetail = {
   id: string;
@@ -36,6 +36,7 @@ export type TitleDetail = {
   priceMnt: number;
   freePreviewSec: number;
   genres: string[];
+  adult?: boolean;
   episodes: EpisodeView[];
   totalDurationSec: number;
   owned: boolean;
@@ -128,6 +129,7 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
         year: schema.titles.year,
         posterUrl: schema.titles.posterUrl,
         priceMnt: schema.titles.priceMnt,
+        adult: schema.titles.isAdult,
       })
       .from(schema.titles)
       .innerJoin(schema.titleGenres, eq(schema.titleGenres.titleId, schema.titles.id))
@@ -146,6 +148,7 @@ export async function getTitleDetail(slug: string, userId?: string | null): Prom
 
   return {
     ...withGenres,
+    adult: t.isAdult,
     episodes,
     totalDurationSec: eps.reduce((s, e) => s + e.durationSec, 0),
     owned,

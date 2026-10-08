@@ -18,6 +18,7 @@ const genres = [
   ["Түүхэн", "historical"],
   ["Гэр бүл", "family"],
   ["Анимэйшн", "animation"],
+  ["+18", "adult"],
 ] as const;
 
 async function main() {

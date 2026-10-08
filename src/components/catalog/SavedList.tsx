@@ -8,6 +8,7 @@ type Row = {
   name: string;
   posterUrl: string | null;
   priceMnt: number;
+  adult?: boolean;
   year: number | null;
   type: "film" | "series";
 };

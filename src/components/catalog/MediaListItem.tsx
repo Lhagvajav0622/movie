@@ -10,7 +10,7 @@ export function MediaListItem({
   action,
 }: {
   href: string;
-  t: { slug: string; name: string; posterUrl: string | null; priceMnt: number };
+  t: { slug: string; name: string; posterUrl: string | null; priceMnt: number; adult?: boolean };
   meta: string;
   progress?: number;
   /** Optional control shown at the right edge of the row (e.g. a remove button). */

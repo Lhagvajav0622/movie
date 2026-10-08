@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/server/db";
 import { requireAdmin } from "@/server/auth";
@@ -105,6 +105,15 @@ export async function saveTitle(
     status: d.status,
     updatedAt: new Date(),
   };
+
+  // Titles ticked into the "+18" category are age-gated.
+  const adultIds = d.genreIds.length
+    ? await db
+        .select({ id: schema.genres.id })
+        .from(schema.genres)
+        .where(and(eq(schema.genres.slug, "adult"), inArray(schema.genres.id, d.genreIds)))
+    : [];
+  (values as { isAdult?: boolean }).isAdult = adultIds.length > 0;
 
   let titleId = id;
   await db.transaction(async (tx) => {

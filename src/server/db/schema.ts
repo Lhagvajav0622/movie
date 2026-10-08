@@ -132,6 +132,8 @@ export const titles = pgTable(
     /** Free preview length; for series counted cumulatively from episode 1 */
     freePreviewSec: integer("free_preview_sec").notNull().default(300),
     isFeatured: boolean("is_featured").notNull().default(false),
+    /** In the "+18" category: poster is blurred until the viewer confirms they are 18+ */
+    isAdult: boolean("is_adult").notNull().default(false),
     featuredOrder: integer("featured_order").notNull().default(0),
     status: titleStatus("status").notNull().default("draft"),
     publishedAt: timestamp("published_at"),

@@ -39,6 +39,7 @@ async function loadHomeData(): Promise<{
         genres: r.genres,
         vertical: r.orientation === "vertical",
         isFeatured: r.isFeatured,
+        adult: r.isAdult,
       }));
       const used = new Set(items.flatMap((i) => i.genres));
       const genres = demoGenres

@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 import { BackBar } from "@/components/catalog/DetailChrome";
 import { SearchBox } from "@/components/catalog/SearchBox";
 import { TitleCard, type TitleCardData } from "@/components/catalog/TitleCard";
+import { AgeGate } from "@/components/catalog/AgeGate";
 import { TitleRow } from "@/components/catalog/TitleRow";
 import { countPublished, listGenres, searchTitles } from "@/server/catalog";
 import { demoGenres, demoTitles } from "@/lib/demo";
@@ -30,6 +31,7 @@ async function loadUncached(q: string, genre: string | null) {
         year: r.year,
         posterUrl: r.posterUrl,
         priceMnt: r.priceMnt,
+        adult: r.isAdult,
         hue: hueFrom(r.slug),
       }));
       return { items, genres: genres.map((g) => g.nameMn) };
@@ -100,6 +102,12 @@ export default async function SearchPage({
           {genres.map((g) => chip(g, g))}
         </div>
       </div>
+
+      {genre === "+18" && (
+        <div className="px-4 md:px-0">
+          <AgeGate variant="banner" />
+        </div>
+      )}
 
       <div className="px-4 md:px-0">
         {browsing ? (

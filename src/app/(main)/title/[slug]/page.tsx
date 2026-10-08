@@ -9,6 +9,7 @@ import { EpisodeList } from "@/components/catalog/EpisodeList";
 import { SaveButton } from "@/components/catalog/SaveButton";
 import { TitleRow } from "@/components/catalog/TitleRow";
 import { Poster } from "@/components/catalog/TitleCard";
+import { AgeGate } from "@/components/catalog/AgeGate";
 import { BuyButton } from "@/components/payment/BuyButton";
 import { IconPlay } from "@/components/ui/icons";
 import {
@@ -56,7 +57,12 @@ function Backdrop({
   if (t.backdropUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={t.backdropUrl} alt="" className={`object-cover ${className}`} />
+      <img
+        src={t.backdropUrl}
+        alt=""
+        className={`object-cover ${className}`}
+        {...(t.adult ? { "data-adult": "" } : {})}
+      />
     );
   }
   return (
@@ -67,6 +73,7 @@ function Backdrop({
         priceMnt: 0,
         hue: t.hue,
         posterUrl: t.posterUrl,
+        adult: t.adult,
       }}
       className={className}
     />
@@ -123,7 +130,15 @@ export default async function TitlePage({
   const session = await getSession().catch(() => null);
   const t = await getTitleDetail(slug, session?.user.id);
   if (!t) notFound();
+  return (
+    <>
+      {t.adult && <AgeGate variant="overlay" />}
+      <TitleContent t={t} />
+    </>
+  );
+}
 
+function TitleContent({ t }: { t: TitleDetail }) {
   const firstEp = t.episodes[0]?.number ?? 1;
   const needsPurchase = t.priceMnt > 0 && !t.owned;
   const similar = t.similar.map((s) => ({ ...s, hue: s.hue }));
