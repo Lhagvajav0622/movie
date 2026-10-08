@@ -3,6 +3,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { IconArrowLeft } from "@/components/ui/icons";
 
+/** Arrow that goes one step back in history; `fallback` is used when the page was opened directly (no history). */
+export function BackArrow({ fallback = "/", className = "p-4" }: { fallback?: string; className?: string }) {
+  const router = useRouter();
+  return (
+    <button
+      type="button"
+      aria-label="Буцах"
+      onClick={() => (window.history.length > 1 ? router.back() : router.push(fallback))}
+      className={className}
+    >
+      <IconArrowLeft />
+    </button>
+  );
+}
+
 /** Mobile "Navigation Bar": back arrow + centered title. */
 /** `href` set → the arrow always goes there (e.g. Search → Home) instead of one step back in history. */
 export function BackBar({ title, href }: { title: string; href?: string }) {

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { usePlayback } from "./usePlayback";
 import { PlayerOverlay } from "./PlayerOverlay";
-import { IconArrowLeft } from "@/components/ui/icons";
+import { BackArrow } from "@/components/catalog/DetailChrome";
 import { EpisodeList } from "@/components/catalog/EpisodeList";
 import type { EpisodeView } from "@/server/title";
 
@@ -37,9 +37,7 @@ export function FilmPlayer({
   return (
     <div className="mx-auto max-w-[1120px] md:px-4 md:pt-6">
       <div className="flex h-14 items-center md:hidden">
-        <Link href={`/title/${slug}`} aria-label="Буцах" className="p-4">
-          <IconArrowLeft />
-        </Link>
+        <BackArrow fallback={`/title/${slug}`} />
         <p className="absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-body font-bold">{titleName}</p>
       </div>
 

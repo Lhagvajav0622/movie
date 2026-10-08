@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { usePlayback, playWithSound } from "./usePlayback";
 import { PlayerOverlay } from "./PlayerOverlay";
 import { PlayerControls } from "./PlayerControls";
-import { IconArrowLeft, IconLock, IconPlayLarge } from "@/components/ui/icons";
+import { BackArrow } from "@/components/catalog/DetailChrome";
+import { IconLock, IconPlayLarge } from "@/components/ui/icons";
 import type { EpisodeView } from "@/server/title";
 
 type Props = {
@@ -93,9 +94,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
 
       {/* Top bar */}
       <div className="absolute inset-x-0 top-0 flex h-14 items-center bg-gradient-to-b from-black/70 to-transparent pt-[env(safe-area-inset-top)]">
-        <a href={`/title/${slug}`} aria-label="Буцах" className="p-4">
-          <IconArrowLeft />
-        </a>
+        <BackArrow fallback={`/title/${slug}`} />
         <p className="absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-body font-bold">{titleName}</p>
       </div>
 
