@@ -48,6 +48,7 @@ export default async function HomePage() {
         </div>
         {continueItems.length > 0 && <TitleRow title="Үргэлжлүүлэн үзэх" href="/history" items={continueItems} />}
         <Top10Row items={all} />
+        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
         {series.length > 0 && <TitleRow title="Цуврал драм" href="/search" items={series} />}
         <StarredCard
           t={spotlight}
@@ -57,7 +58,6 @@ export default async function HomePage() {
         />
         {films.length > 0 && <TitleRow title="Уран сайхны кино" href="/search" items={films} />}
         <RecommendedGrid items={all.slice(0, 8)} />
-        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
       </div>
 
       {/* Desktop (Figma "Home", 1440 wide, 1088 content) */}
@@ -65,12 +65,12 @@ export default async function HomePage() {
         <HeroSlider items={featuredFirst.slice(0, 5)} savedSlugs={savedSlugs} />
         {continueItems.length > 0 && <TitleRow title="Үргэлжлүүлэн үзэх" href="/history" items={continueItems} />}
         <TitleRow title="Онцлох бүтээлүүд" href="/search" items={featuredFirst.slice(0, 10)} />
+        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
         <TitleRow title="Сүүлд гарсан" href="/search" items={latest} />
         <GenreSection genres={genres} items={all} />
         <FeatureBanner t={spotlight} saved={savedSlugs.includes(spotlight.slug)} />
         {series.length > 0 && <TitleRow title="Цуврал драм" href="/search" items={series} />}
         {films.length > 0 && <TitleRow title="Уран сайхны кино" href="/search" items={films} />}
-        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
       </div>
     </>
   );
