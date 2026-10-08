@@ -79,8 +79,11 @@ export function HeroCarousel({ items }: { items: TitleCardData[] }) {
       <div className="flex items-center gap-[5px]">
         {items.map((t, i) =>
           i === index ? (
-            <span key={t.slug} className="relative h-1.5 w-20 rounded-[20px] bg-brand-50">
-              <span className="absolute left-0 top-0 size-1.5 rounded-[7px] bg-brand-500" />
+            <span key={`${t.slug}-${index}`} className="relative h-1.5 w-20 overflow-hidden rounded-[20px] bg-brand-50/30">
+              <span
+                className="absolute left-0 top-0 h-full min-w-1.5 rounded-[7px] bg-brand-500"
+                style={items.length > 1 ? { animation: "hero-progress 5s linear forwards" } : { width: "100%" }}
+              />
             </span>
           ) : (
             <button
