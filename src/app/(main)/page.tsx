@@ -29,6 +29,7 @@ export default async function HomePage() {
     year: h.year,
     posterUrl: h.posterUrl,
     priceMnt: h.priceMnt,
+    adult: h.adult,
   }));
   const featuredFirst = [...all].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
   const latest = all; // already newest first
