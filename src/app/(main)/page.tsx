@@ -11,11 +11,17 @@ export default async function HomePage() {
   // Everything the page needs is fetched at the same time (each query is a round trip to the database).
   const session = await getSession().catch(() => null);
   const uid = session?.user.id;
-  const [{ items: all, genres }, history, saved] = await Promise.all([
+  const [{ items: everything, genres: allGenres }, history, saved] = await Promise.all([
     getHomeData(),
     uid ? listHistory(uid, 10).catch(() => []) : Promise.resolve([]),
     uid ? listSaved(uid).catch(() => []) : Promise.resolve([]),
   ]);
+  // "+18" titles live only in their own row at the bottom, not in hero / featured / latest rows.
+  const adultItems = everything.filter((t) => t.adult);
+  const regular = everything.filter((t) => !t.adult);
+  const all = regular.length ? regular : everything;
+  const genres = allGenres.filter((g) => g !== "+18");
+  const adultHref = `/search?genre=${encodeURIComponent("+18")}`;
   const savedSlugs = saved.map((x) => x.slug);
   const continueItems = history.map((h) => ({
     slug: h.slug,
@@ -51,6 +57,7 @@ export default async function HomePage() {
         />
         {films.length > 0 && <TitleRow title="Уран сайхны кино" href="/search" items={films} />}
         <RecommendedGrid items={all.slice(0, 8)} />
+        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
       </div>
 
       {/* Desktop (Figma "Home", 1440 wide, 1088 content) */}
@@ -63,6 +70,7 @@ export default async function HomePage() {
         <FeatureBanner t={spotlight} saved={savedSlugs.includes(spotlight.slug)} />
         {series.length > 0 && <TitleRow title="Цуврал драм" href="/search" items={series} />}
         {films.length > 0 && <TitleRow title="Уран сайхны кино" href="/search" items={films} />}
+        {adultItems.length > 0 && <TitleRow title="+18" href={adultHref} items={adultItems} />}
       </div>
     </>
   );
