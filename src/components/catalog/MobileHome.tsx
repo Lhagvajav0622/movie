@@ -29,16 +29,23 @@ export function HeroCarousel({ items }: { items: TitleCardData[] }) {
   const [index, setIndex] = useState(0);
   const touching = useRef(false);
 
-  // Auto-advance every 5s; stops while a finger is on the carousel.
+  // Auto-advance every 5s (the pager fill matches this). While a finger is down, wait and try again.
   useEffect(() => {
     if (items.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setTimeout(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const advance = () => {
       const el = ref.current;
-      if (!el || touching.current) return;
+      if (!el) return;
+      if (touching.current) {
+        t = setTimeout(advance, 1000);
+        return;
+      }
       const next = (index + 1) % items.length;
       el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
-    }, 5000);
+      // If the browser ignored the scroll (it can on some phones), move the pager ourselves.
+      t = setTimeout(() => setIndex(next), 900);
+    };
+    t = setTimeout(advance, 5000);
     return () => clearTimeout(t);
   }, [index, items.length]);
 
@@ -49,6 +56,7 @@ export function HeroCarousel({ items }: { items: TitleCardData[] }) {
           ref={ref}
           onTouchStart={() => (touching.current = true)}
           onTouchEnd={() => (touching.current = false)}
+          onTouchCancel={() => (touching.current = false)}
           onScroll={(e) => {
             const el = e.currentTarget;
             setIndex(Math.round(el.scrollLeft / el.clientWidth));
