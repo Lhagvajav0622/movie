@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePlayback } from "./usePlayback";
 import { PlayerOverlay } from "./PlayerOverlay";
+import { SkipButtons } from "./SkipButtons";
 import { EpisodeList } from "@/components/catalog/EpisodeList";
 import { IconPlay } from "@/components/ui/icons";
 import type { EpisodeView } from "@/server/title";
@@ -116,6 +117,7 @@ export function FilmStage({
               controlsList="nodownload"
               onContextMenu={(e) => e.preventDefault()}
             />
+            {state.status === "ready" && <SkipButtons videoRef={videoRef} />}
             <PlayerOverlay
               titleId={titleId}
               state={state}

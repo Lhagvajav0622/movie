@@ -11,6 +11,7 @@ const nav = [
   { href: "/admin/titles", label: "Бүтээлүүд" },
   { href: "/admin/orders", label: "Захиалга" },
   { href: "/admin/users", label: "Хэрэглэгчид" },
+  { href: "/admin/stats", label: "Статистик" },
 ];
 
 export default async function AdminLayout({

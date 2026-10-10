@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { usePlayback } from "./usePlayback";
 import { PlayerOverlay } from "./PlayerOverlay";
+import { SkipButtons } from "./SkipButtons";
 import { BackArrow } from "@/components/catalog/DetailChrome";
 import { EpisodeList } from "@/components/catalog/EpisodeList";
 import type { EpisodeView } from "@/server/title";
@@ -52,6 +53,7 @@ export function FilmPlayer({
           controlsList="nodownload"
           onContextMenu={(e) => e.preventDefault()}
         />
+        {state.status === "ready" && <SkipButtons videoRef={videoRef} />}
         <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} />
       </div>
 
