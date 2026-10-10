@@ -250,7 +250,7 @@ function ReelItem({
         <PlayerControls
           videoRef={videoRef}
           limitSec={state.info.access === "preview" ? state.info.allowedSec : null}
-          className="absolute inset-x-4 bottom-[max(12px,env(safe-area-inset-bottom))] z-10 md:left-1/2 md:right-auto md:w-[520px] md:-translate-x-1/2"
+          className="absolute inset-x-4 bottom-[max(12px,env(safe-area-inset-bottom))] z-10 mx-auto max-w-[520px]"
         />
       )}
       {active && <PlayerOverlay titleId={titleId} state={state} previewEnded={previewEnded} priceMnt={priceMnt} />}

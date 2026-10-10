@@ -99,7 +99,7 @@ export function PlayerControls({
   const btn = "grid size-10 shrink-0 place-items-center rounded-full text-[12px] font-bold hover:bg-white/15 active:bg-white/25";
 
   return (
-    <div className={`flex flex-col gap-1 ${className}`} onClick={(e) => e.stopPropagation()}>
+    <div className={`@container flex flex-col gap-1 ${className}`} onClick={(e) => e.stopPropagation()}>
       <div
         ref={bar}
         role="slider"
@@ -156,7 +156,7 @@ export function PlayerControls({
             step={0.05}
             value={muted ? 0 : volume}
             aria-label="Дууны хэмжээ"
-            className="hidden w-20 accent-brand-400 md:block"
+            className="hidden w-20 accent-brand-400 @[400px]:block"
             onChange={(e) => {
               const v = videoRef.current;
               if (!v) return;
