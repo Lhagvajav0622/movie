@@ -12,6 +12,9 @@ type Props = {
   uploadedMin: number | null;
 };
 
+/** A free preview longer than this triggers a warning (not a block). */
+const PREVIEW_WARN_SEC = 5 * 60;
+
 const ERRORS: Record<string, string> = {
   NOT_CONFIGURED:
     "R2 тохиргоо Vercel дээр дутуу байна (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY).",
@@ -97,10 +100,12 @@ export function EpisodeUpload({
   const [pct, setPct] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [warn, setWarn] = useState<string | null>(null);
 
   async function upload(file: File) {
     setBusy(true);
     setError(null);
+    setWarn(null);
     setPct(0);
     let session: { uploadId: string } | null = null;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -206,6 +211,11 @@ export function EpisodeUpload({
         parts: etags,
       });
       setPct(100);
+      // A free preview is meant to be a short teaser; anyone can watch it without paying.
+      if (kind === "preview" && durationSec > PREVIEW_WARN_SEC)
+        setWarn(
+          `Анхаар: энэ preview ${Math.round(durationSec / 60)} минут урт байна. Preview-г хэн ч үнэгүй үздэг тул 1–3 минут байлгахыг зөвлөе.`,
+        );
       router.refresh();
     } catch (e) {
       if (session)
@@ -265,6 +275,7 @@ export function EpisodeUpload({
           />
         </div>
       )}
+      {warn && <p className="mt-2 text-caption text-amber-300">{warn}</p>}
       {error && (
         <p className="mt-2 whitespace-pre-wrap text-caption text-red-400">
           {error}

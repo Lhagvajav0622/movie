@@ -11,6 +11,8 @@
 import {
   base64url,
   contentType,
+  fileScope,
+  legacySignatureAllowed,
   parseRange,
   parseSignedPath,
   safeEqual,
@@ -115,8 +117,13 @@ const worker = {
     const p = parseSignedPath(url.pathname);
     if (!p) return deny(404, cors);
     if (p.exp < Math.floor(Date.now() / 1000)) return deny(403, cors);
-    const expected = await hmac(env.SIGNING_SECRET, signingPayload(p.exp, p.limit, p.seg, p.episodeId));
-    if (!safeEqual(expected, p.sig)) return deny(403, cors);
+    // The signature covers the kind of file too, so a preview link can never open the full MP4.
+    let valid = safeEqual(await hmac(env.SIGNING_SECRET, signingPayload(p.exp, p.limit, p.seg, p.episodeId, fileScope(p.key))), p.sig);
+    // Links issued before this change (valid for a few hours at most) are still accepted where that is safe.
+    if (!valid && legacySignatureAllowed(p.key, p.limit)) {
+      valid = safeEqual(await hmac(env.SIGNING_SECRET, signingPayload(p.exp, p.limit, p.seg, p.episodeId)), p.sig);
+    }
+    if (!valid) return deny(403, cors);
     if (segmentPastLimit(p.key, p.limit, p.seg)) return deny(403, cors);
 
     if (p.key.endsWith(".mp4")) return serveMp4(request, env, p.key, cors);

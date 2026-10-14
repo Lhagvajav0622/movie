@@ -13,6 +13,9 @@ export type PlayInfo = {
   priceMnt: number;
 };
 
+/** Links last 2 hours; renew when one is older than this and the viewer presses play again. */
+const LINK_STALE_MS = 100 * 60 * 1000;
+
 const LOADING = { status: "loading" } as const;
 const IDLE = { status: "idle" } as const;
 
@@ -22,6 +25,19 @@ export type PlayState =
   | { status: "locked"; priceMnt: number }
   | { status: "unavailable" }
   | { status: "error" };
+
+async function fetchPlayState(episodeId: string): Promise<PlayState> {
+  try {
+    const r = await fetch(`/api/episodes/${episodeId}/play`);
+    const body = await r.json().catch(() => ({}));
+    if (r.status === 402) return { status: "locked", priceMnt: body.priceMnt ?? 0 };
+    if (r.status === 404 || r.status === 503) return { status: "unavailable" };
+    if (!r.ok) return { status: "error" };
+    return { status: "ready", info: body as PlayInfo };
+  } catch {
+    return { status: "error" };
+  }
+}
 
 /**
  * Loads a signed HLS URL for an episode into a <video>, resumes position,
@@ -38,6 +54,8 @@ export function usePlayback(episodeId: string | null, active: boolean) {
     [episodeId, active, result],
   );
   const previewEnded = endedFor === episodeId;
+  const issuedAt = useRef(0); // when the current signed link was issued
+  const refreshes = useRef(0); // renewals since the last successful playback
 
   const saveProgress = useCallback(
     (keepalive = false) => {
@@ -57,20 +75,51 @@ export function usePlayback(episodeId: string | null, active: boolean) {
   useEffect(() => {
     if (!episodeId || !active) return;
     let cancelled = false;
-    const set = (st: PlayState) => !cancelled && setResult({ id: episodeId, state: st });
-    fetch(`/api/episodes/${episodeId}/play`)
-      .then(async (r) => {
-        const body = await r.json().catch(() => ({}));
-        if (r.status === 402) set({ status: "locked", priceMnt: body.priceMnt ?? 0 });
-        else if (r.status === 404 || r.status === 503) set({ status: "unavailable" });
-        else if (!r.ok) set({ status: "error" });
-        else set({ status: "ready", info: body as PlayInfo });
-      })
-      .catch(() => set({ status: "error" }));
+    const set = (st: PlayState) => {
+      if (cancelled) return;
+      issuedAt.current = Date.now();
+      refreshes.current = 0;
+      setResult({ id: episodeId, state: st });
+    };
+    fetchPlayState(episodeId).then(set);
     return () => {
       cancelled = true;
     };
   }, [episodeId, active]);
+
+  // Links are short-lived. If one stops working (a long pause, a seek after it expired), ask for a new one and
+  // continue from the same spot instead of leaving a broken player.
+  const refresh = useCallback(async () => {
+    const v = videoRef.current;
+    if (!v || !episodeId || state.status !== "ready" || refreshes.current >= 3) return;
+    refreshes.current += 1;
+    const position = v.currentTime;
+    const next = await fetchPlayState(episodeId);
+    if (next.status !== "ready") return;
+    issuedAt.current = Date.now();
+    setResult({ id: episodeId, state: { status: "ready", info: { ...next.info, resumeSec: position } } });
+  }, [episodeId, state]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || state.status !== "ready") return;
+    const onError = () => {
+      if (v.currentSrc) void refresh();
+    };
+    // Playing again after a long pause: the old link may be gone, so renew it first.
+    const onPlay = () => {
+      if (Date.now() - issuedAt.current > LINK_STALE_MS) void refresh();
+    };
+    const onPlaying = () => (refreshes.current = 0);
+    v.addEventListener("error", onError);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("playing", onPlaying);
+    return () => {
+      v.removeEventListener("error", onError);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("playing", onPlaying);
+    };
+  }, [state, refresh]);
 
   // Attach the stream.
   useEffect(() => {
@@ -93,6 +142,9 @@ export function usePlayback(episodeId: string | null, active: boolean) {
         if (destroyed || !HlsCtor.isSupported()) return;
         const hls = new HlsCtor({ startLevel: -1, capLevelToPlayerSize: true, maxBufferLength: 30 });
         hlsRef.current = hls;
+        hls.on(HlsCtor.Events.ERROR, (_e, data) => {
+          if (data.fatal) v.dispatchEvent(new Event("error")); // handled by the renewal logic above
+        });
         hls.loadSource(url);
         hls.attachMedia(v);
       });

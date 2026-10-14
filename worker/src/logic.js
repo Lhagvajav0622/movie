@@ -5,7 +5,7 @@
  *   exp    unix seconds when the link stops working
  *   limit  free-preview seconds (0 = full access)
  *   seg    HLS segment length in seconds (to block segments past the limit)
- *   sig    base64url HMAC-SHA256 of "{exp}.{limit}.{seg}.{episodeId}", first 32 chars
+ *   sig    base64url HMAC-SHA256 of "{exp}.{limit}.{seg}.{episodeId}.{fileScope}", first 32 chars
  */
 
 export function parseSignedPath(pathname) {
@@ -16,7 +16,24 @@ export function parseSignedPath(pathname) {
   return { exp: Number(exp), limit: Number(limit), seg: Number(seg), sig, key, episodeId };
 }
 
-export const signingPayload = (exp, limit, seg, episodeId) => `${exp}.${limit}.${seg}.${episodeId}`;
+/**
+ * What the signature covers. With `scope` the link is tied to one kind of file: an exact MP4 name ("full.mp4",
+ * "preview.mp4") or "hls" (playlists and segments). Without it (old links) the signature only covered the episode.
+ */
+export const signingPayload = (exp, limit, seg, episodeId, scope) =>
+  scope === undefined ? `${exp}.${limit}.${seg}.${episodeId}` : `${exp}.${limit}.${seg}.${episodeId}.${scope}`;
+
+/** "full.mp4" / "preview.mp4" for MP4 files, "hls" for playlists and segments. */
+export function fileScope(key) {
+  if (key.endsWith(".mp4")) return key.slice(key.lastIndexOf("/") + 1);
+  return "hls";
+}
+
+/**
+ * Old links (signed before files were part of the signature) stay valid until they expire, except where they
+ * could be abused: a preview link (limit > 0) must never open an MP4.
+ */
+export const legacySignatureAllowed = (key, limit) => limit === 0 || !key.endsWith(".mp4");
 
 export function base64url(bytes) {
   let s = "";

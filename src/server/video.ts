@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 
 /**
  * Builds a signed playback URL for the Cloudflare video Worker.
- * Must match worker/src/logic.js (payload "{exp}.{limit}.{seg}.{episodeId}", base64url HMAC, 32 chars).
+ * Must match worker/src/logic.js (payload "{exp}.{limit}.{seg}.{episodeId}.{fileScope}", base64url HMAC, 32 chars).
  */
 export function signPlaybackUrl(opts: {
   episodeId: string;
@@ -19,14 +19,17 @@ export function signPlaybackUrl(opts: {
   const base = (opts.baseUrl ?? process.env.VIDEO_BASE_URL ?? "").replace(/\/$/, "");
   const secret = opts.secret ?? process.env.VIDEO_SIGNING_SECRET ?? "";
   if (!base || !secret) throw new Error("VIDEO_BASE_URL / VIDEO_SIGNING_SECRET not configured");
-  const exp = Math.floor((opts.now ?? Date.now()) / 1000) + (opts.ttlSec ?? 6 * 3600);
+  const exp = Math.floor((opts.now ?? Date.now()) / 1000) + (opts.ttlSec ?? 2 * 3600);
   const limit = Math.max(0, Math.floor(opts.limitSec));
   const seg = opts.segmentSec;
+  const file = opts.file ?? "master.m3u8";
+  // MP4 links are tied to the exact file; HLS links cover the playlists and segments ("hls").
+  const scope = file.endsWith(".mp4") ? file : "hls";
   const sig = createHmac("sha256", secret)
-    .update(`${exp}.${limit}.${seg}.${opts.episodeId}`)
+    .update(`${exp}.${limit}.${seg}.${opts.episodeId}.${scope}`)
     .digest("base64url")
     .slice(0, 32);
-  return `${base}/p/${exp}/${limit}/${seg}/${sig}/${opts.videoKey}/${opts.file ?? "master.m3u8"}`;
+  return `${base}/p/${exp}/${limit}/${seg}/${sig}/${opts.videoKey}/${file}`;
 }
 
 export const thumbnailUrl = (episodeId: string, baseUrl = process.env.VIDEO_BASE_URL ?? "") =>

@@ -24,7 +24,7 @@ test("app-signed URL verifies with the Worker algorithm", async () => {
   assert.ok(p, "path parses");
   assert.equal(p.limit, 300);
   assert.equal(p.key, "v/0b6f1d2e-1111-2222-3333-444455556666/master.m3u8");
-  const expected = await workerSig("test-secret", signingPayload(p.exp, p.limit, p.seg, p.episodeId));
+  const expected = await workerSig("test-secret", signingPayload(p.exp, p.limit, p.seg, p.episodeId, "hls"));
   assert.equal(p.sig, expected);
 });
 
@@ -45,6 +45,6 @@ test("preview MP4 link cannot be reused for the full MP4", async () => {
   assert.equal(p.episodeId, `${id}-pv`);
   // Swapping the path to the full file changes the episode scope, so the signature no longer matches.
   const swapped = parseSignedPath(new URL(prev).pathname.replace(`v/${id}-pv/preview.mp4`, `v/${id}/full.mp4`))!;
-  const expected = await workerSig("s", signingPayload(swapped.exp, swapped.limit, swapped.seg, swapped.episodeId));
+  const expected = await workerSig("s", signingPayload(swapped.exp, swapped.limit, swapped.seg, swapped.episodeId, "full.mp4"));
   assert.notEqual(swapped.sig, expected);
 });
