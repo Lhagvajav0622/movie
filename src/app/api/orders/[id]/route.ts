@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: Ctx) {
 
   if (o.status === "pending" && !o.isTest && o.providerInvoiceId) {
     const paid = await providerFor(o.method === "socialpay" ? "socialpay" : "qpay")
-      .isPaid(o.providerInvoiceId)
+      .isPaid(o.providerInvoiceId, o.amountMnt)
       .catch(() => false);
     if (paid) o = (await settleOrder(o.id)) ?? o;
   }

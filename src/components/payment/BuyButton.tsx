@@ -6,7 +6,15 @@ type Method = "qpay" | "socialpay";
 type Step =
   | { s: "choose" }
   | { s: "creating"; method: Method }
-  | { s: "pay"; id: string; code: string; mode: "test" | "live"; method: Method }
+  | {
+      s: "pay";
+      id: string;
+      code: string;
+      mode: "test" | "live";
+      method: Method;
+      qrImage?: string;
+      links?: { name: string; description?: string; link: string }[];
+    }
   | { s: "paying" }
   | { s: "done" };
 
@@ -59,14 +67,16 @@ export function BuyButton({
       setError(
         j.code === "OWNED"
           ? "Та энэ киног аль хэдийн худалдаж авсан байна."
-          : "Захиалга үүсгэж чадсангүй. Дахин оролдоно уу.",
+          : j.code === "UNAVAILABLE"
+            ? "Энэ төлбөрийн хэлбэр одоохондоо ажиллахгүй байна. Өөр хэлбэрээр төлнө үү."
+            : "Захиалга үүсгэж чадсангүй. Дахин оролдоно уу.",
       );
       setStep({ s: "choose" });
       if (j.code === "OWNED") window.location.reload();
       return;
     }
     const o = await res.json();
-    setStep({ s: "pay", id: o.id, code: o.code, mode: o.mode, method });
+    setStep({ s: "pay", id: o.id, code: o.code, mode: o.mode, method, qrImage: o.qrImage, links: o.links });
   }
 
   async function testPay(id: string) {
@@ -167,9 +177,32 @@ export function BuyButton({
                     </button>
                   </>
                 ) : (
-                  <p className="mt-4 text-body-2 text-fg-muted">
-                    Банкны апп-аараа төлбөрөө төлнө үү. Төлбөр орсны дараа энэ цонх автоматаар шинэчлэгдэнэ.
-                  </p>
+                  <>
+                    <p className="mt-4 text-body-2 text-fg-muted">
+                      Банкны апп-аараа төлбөрөө төлнө үү. Төлбөр орсны дараа энэ цонх автоматаар шинэчлэгдэнэ.
+                    </p>
+                    {step.qrImage && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`data:image/png;base64,${step.qrImage}`}
+                        alt="QPay QR код"
+                        className="mx-auto mt-4 size-48 rounded-lg bg-white p-2"
+                      />
+                    )}
+                    {step.links && step.links.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        {step.links.slice(0, 8).map((l) => (
+                          <a
+                            key={l.link}
+                            href={l.link}
+                            className="truncate rounded-lg border border-stroke px-3 py-2 text-center text-caption font-medium hover:border-brand-500"
+                          >
+                            {l.name || l.description}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}

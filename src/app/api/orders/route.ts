@@ -15,9 +15,10 @@ export async function POST(req: Request) {
 
   const r = await createOrder(session.user.id, parsed.data.titleId, parsed.data.method);
   if (!r.ok) {
-    const status = r.code === "NOT_FOUND" ? 404 : r.code === "PROVIDER_ERROR" ? 502 : 409;
+    const status = r.code === "NOT_FOUND" ? 404 : r.code === "UNAVAILABLE" ? 503 : r.code === "PROVIDER_ERROR" ? 502 : 409;
     return NextResponse.json({ code: r.code }, { status });
   }
   const { id, code, amountMnt, method, status } = r.order;
-  return NextResponse.json({ id, code, amountMnt, method, status, mode: paymentMode() });
+  const { qrImage, qrText, links } = r.invoice;
+  return NextResponse.json({ id, code, amountMnt, method, status, mode: paymentMode(), qrImage, qrText, links });
 }

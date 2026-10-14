@@ -3,6 +3,7 @@ import type { PaymentProvider } from "./types";
 /** SocialPay (Golomt) — to be implemented after the merchant agreement. Same contract as QPay. */
 export const socialpayProvider: PaymentProvider = {
   live: true,
+  available: () => false,
   async createInvoice() {
     throw new Error("SocialPay is not configured yet");
   },

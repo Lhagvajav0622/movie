@@ -3,12 +3,13 @@ import { and, desc, eq } from "drizzle-orm";
 import { db, schema } from "./db";
 import { generateOrderCode } from "./order-code";
 import { providerFor, type PayMethod } from "./payments";
+import type { Invoice } from "./payments/types";
 
 const { orders, purchases, titles } = schema;
 
 export type CreateOrderResult =
-  | { ok: true; order: typeof orders.$inferSelect }
-  | { ok: false; code: "NOT_FOUND" | "FREE" | "OWNED" | "PROVIDER_ERROR" };
+  | { ok: true; order: typeof orders.$inferSelect; invoice: Invoice }
+  | { ok: false; code: "NOT_FOUND" | "FREE" | "OWNED" | "PROVIDER_ERROR" | "UNAVAILABLE" };
 
 /** Create (or reuse the open) order for a user + title and ask the provider for an invoice. */
 export async function createOrder(userId: string, titleId: string, method: PayMethod): Promise<CreateOrderResult> {
@@ -28,10 +29,11 @@ export async function createOrder(userId: string, titleId: string, method: PayMe
   if (owned) return { ok: false, code: "OWNED" };
 
   const provider = providerFor(method);
+  if (!provider.available()) return { ok: false, code: "UNAVAILABLE" };
   const code = generateOrderCode();
-  let invoiceId: string;
+  let invoice: Invoice;
   try {
-    ({ invoiceId } = await provider.createInvoice({ code, amountMnt: t.priceMnt, description: t.name }));
+    invoice = await provider.createInvoice({ code, amountMnt: t.priceMnt, description: t.name });
   } catch {
     return { ok: false, code: "PROVIDER_ERROR" };
   }
@@ -45,11 +47,11 @@ export async function createOrder(userId: string, titleId: string, method: PayMe
       amountMnt: t.priceMnt, // price is always read server-side, never from the client
       method,
       status: "pending",
-      providerInvoiceId: invoiceId,
+      providerInvoiceId: invoice.invoiceId,
       isTest: !provider.live,
     })
     .returning();
-  return { ok: true, order };
+  return { ok: true, order, invoice };
 }
 
 export async function getOrderFor(userId: string, orderId: string) {
