@@ -177,7 +177,7 @@ function demoDetail(slug: string): TitleDetail | null {
     country: "Хятад",
     director: "—",
     castText: null,
-    posterUrl: d.posterUrl ?? null,
+    posterUrl: null,
     backdropUrl: null,
     priceMnt: d.priceMnt,
     freePreviewSec: 300,
@@ -193,7 +193,7 @@ function demoDetail(slug: string): TitleDetail | null {
     saved: false,
     similar: demoTitles
       .filter((t) => t.slug !== slug && t.genres.some((g) => d.genres.includes(g)))
-      .map((t) => ({ slug: t.slug, name: t.name, year: t.year ?? null, posterUrl: t.posterUrl ?? null, priceMnt: t.priceMnt, hue: t.hue })),
+      .map((t) => ({ slug: t.slug, name: t.name, year: t.year ?? null, posterUrl: null, priceMnt: t.priceMnt, hue: t.hue })),
     hue: d.hue,
     isDemo: true,
   };

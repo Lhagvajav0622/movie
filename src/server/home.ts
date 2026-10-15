@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { listPublishedTitles } from "./catalog";
-import { demoFillEnabled, demoGenres, demoTitles } from "@/lib/demo";
+import { demoGenres, demoTitles } from "@/lib/demo";
 import type { GenreItem } from "@/components/catalog/GenreSection";
 
 export type HomeItem = GenreItem & { vertical: boolean; isFeatured?: boolean };
@@ -41,8 +41,6 @@ async function loadHomeData(): Promise<{
         isFeatured: r.isFeatured,
         adult: r.isAdult,
       }));
-      // Real titles first; the "coming soon" fillers only go after them and never into featured/hero.
-      if (demoFillEnabled()) items.push(...demoTitles.map((d) => ({ ...d, isFeatured: false })));
       const used = new Set(items.flatMap((i) => i.genres));
       const genres = demoGenres
         .filter((g) => used.has(g))
