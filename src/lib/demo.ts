@@ -26,6 +26,7 @@ export const demoTitles: (GenreItem & { vertical: boolean })[] = rows.map(([name
   year,
   genres,
   vertical,
+  posterUrl: `/demo/poster-${i + 1}.svg`,
   hue: (i * 37 + 200) % 360,
   priceMnt: i % 4 === 0 ? 0 : 4000,
   durationSec: vertical ? 60 * 95 : 60 * (100 + i * 4),
@@ -33,3 +34,9 @@ export const demoTitles: (GenreItem & { vertical: boolean })[] = rows.map(([name
   description:
     "Хотын захын жижиг кафед ажилладаг залуу бүсгүй нэгэн шөнө үл таних эртэй учирснаар хоёр гэр бүлийн олон жилийн нууц ил болж эхэлнэ.",
 }));
+
+/**
+ * Look-alike "Тун удахгүй" titles (own-drawn posters, nothing to watch or buy) that fill the catalog while it is small,
+ * so a first-time visitor does not see an almost empty site. Off unless DEMO_FILL=1 is set on the server.
+ */
+export const demoFillEnabled = () => process.env.DEMO_FILL === "1";

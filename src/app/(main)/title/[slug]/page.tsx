@@ -138,7 +138,43 @@ export default async function TitlePage({
   );
 }
 
+/** Look-alike "coming soon" title (see demoFillEnabled): nothing to play, save or buy. */
+function ComingSoon({ t }: { t: TitleDetail }) {
+  return (
+    <div className="mx-auto max-w-[1120px] px-4 pb-10 md:pt-6">
+      <BackBar title={t.name} />
+      <div className="mt-4 flex flex-col gap-6 md:flex-row md:gap-10">
+        <div className="mx-auto aspect-[2/3] w-[200px] shrink-0 overflow-hidden rounded-lg md:mx-0 md:w-[280px]">
+          <Poster
+            t={{ slug: t.slug, name: t.name, priceMnt: 0, hue: t.hue, posterUrl: t.posterUrl }}
+            className="size-full"
+          />
+        </div>
+        <div className="flex flex-col gap-4">
+          <h1 className="text-[24px] font-bold leading-8 md:text-h1">{t.name}</h1>
+          <div className="flex items-center gap-2 text-caption font-medium leading-[22px] md:text-body">
+            {[t.year, t.ageRating, "HD"].filter(Boolean).map((p) => (
+              <span key={String(p)}>{p}</span>
+            ))}
+          </div>
+          <GenreChips genres={t.genres} />
+          <span className="w-fit rounded-lg border-[1.5px] border-brand-300 bg-brand-500/20 px-6 py-3 text-body-2 font-semibold">
+            Тун удахгүй
+          </span>
+          <Info t={t} />
+        </div>
+      </div>
+      {t.similar.length > 0 && (
+        <div className="mt-10">
+          <TitleRow title="Бусад бүтээлүүд" items={t.similar} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TitleContent({ t }: { t: TitleDetail }) {
+  if (t.isDemo) return <ComingSoon t={t} />;
   const firstEp = t.episodes[0]?.number ?? 1;
   const needsPurchase = t.priceMnt > 0 && !t.owned;
   const similar = t.similar.map((s) => ({ ...s, hue: s.hue }));
