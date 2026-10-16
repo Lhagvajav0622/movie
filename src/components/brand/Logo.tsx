@@ -1,106 +1,115 @@
-/**
- * Кино Хором brand: a film reel with a face in profile (gold) and the wordmark in Unbounded.
- * Source: the "Kino Khorom Logo" design canvas. Mark geometry is shared by every size.
- */
-
-const GOLD = "#F2A93B";
-const REEL = "#2B4C7E";
-
-const HOLES: [number, number][] = [
-  [112, 68],
-  [161.5, 103.9],
-  [142.6, 162.1],
-  [81.4, 162.1],
-  [62.5, 103.9],
-];
-
-const SPOKES: [number, number, number, number][] = [
-  [121, 120, 121, 142.2],
-  [116.5, 127.8, 97.2, 138.9],
-  [107.5, 127.8, 88.2, 116.7],
-  [103, 120, 103, 97.8],
-  [107.5, 112.2, 126.8, 101.1],
-  [116.5, 112.2, 135.8, 123.3],
-];
+import { MARK, RULE, TAGLINE, WORD, type LogoPath } from "./logo-paths";
 
 /**
- * The mark. `gap` is the colour of the cut-out ring and the reel holes: pass the background
- * colour it sits on (the app is black). Below ~40px the spokes are left out so it stays crisp.
+ * Кино Хором logo. The artwork is navy + gold on light; on the dark site the navy ("ink") becomes
+ * warm white and the cut-outs take the background colour, so pass `cut` = the colour behind the logo.
  */
+const GOLD = "#DEA129";
+const INK_DARK = "#F4F1EA";
+const INK_LIGHT = "#002454";
+
+type Look = { ink?: string; cut?: string };
+
+function Paths({
+  paths,
+  ink,
+  cut,
+  transform,
+}: { paths: LogoPath[]; transform?: string } & Required<Look>) {
+  return (
+    <g transform={transform}>
+      {paths.map(([role, d], i) => (
+        <path
+          key={i}
+          d={d}
+          fill={role === "g" ? GOLD : role === "i" ? ink : cut}
+        />
+      ))}
+    </g>
+  );
+}
+
+function svgProps(title: string | undefined, className: string | undefined) {
+  return {
+    className,
+    role: title ? ("img" as const) : undefined,
+    "aria-label": title,
+    "aria-hidden": title ? undefined : (true as const),
+  };
+}
+
+/** Just the picture: film strip, figure, lens and star. Aspect ≈ 1.5 : 1. */
 export function LogoMark({
-  size = 40,
-  gap = "#000000",
+  height = 40,
+  ink = INK_DARK,
+  cut = "#000000",
   className,
   title,
-}: {
-  size?: number;
-  gap?: string;
-  className?: string;
-  title?: string;
-}) {
-  const small = size < 40;
+}: Look & { height?: number; className?: string; title?: string }) {
   return (
     <svg
-      viewBox="14 14 220 212"
-      width={size}
-      height={(size * 212) / 220}
-      className={className}
-      role={title ? "img" : undefined}
-      aria-label={title}
-      aria-hidden={title ? undefined : true}
+      viewBox="436 206 608 400"
+      height={height}
+      width={(height * 608) / 400}
+      {...svgProps(title, className)}
     >
-      <path
-        fill={GOLD}
-        d="M120 26 C156 16 196 34 206 68 C209 80 208 90 210 98 L226 121 C228 125 225 128 220 129 L215 130 L218 138 L212 142 L216 148 C217 155 213 160 205 160 L200 161 C200 172 196 182 186 187 L182 202 Q160 214 138 208 Z"
-      />
-      <circle cx="112" cy="120" r={small ? 99 : 95} fill={gap} />
-      <circle cx="112" cy="120" r="90" fill={REEL} />
-      {small ? (
-        <circle cx="112" cy="120" r="30" fill={GOLD} />
-      ) : (
-        <>
-          {HOLES.map(([x, y]) => (
-            <circle key={`${x}-${y}`} cx={x} cy={y} r="17" fill={gap} />
-          ))}
-          <circle cx="112" cy="120" r="24" fill={GOLD} />
-          <g stroke={REEL} strokeWidth="2.5" strokeLinecap="round">
-            {SPOKES.map(([x1, y1, x2, y2]) => (
-              <line key={`${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} />
-            ))}
-          </g>
-        </>
-      )}
+      <Paths paths={MARK} ink={ink} cut={cut} />
     </svg>
   );
 }
 
-/** "КИНО ХОРОМ" in the brand face; `className` sets the size (e.g. text-[20px]). */
-export function Wordmark({ className = "" }: { className?: string }) {
+// Lockup geometry (artwork coordinates): mark spans 439-1040 × 209-604, wordmark 451-1024 × 641-847.
+const LOCKUP_DX = 649; // wordmark left edge moves to x=1100, 60 right of the mark
+const LOCKUP_DY = -337.5; // wordmark centre meets the mark's centre line
+
+/** Mark with the two-line КИНО / ХОРОМ wordmark to its right (site header, admin). */
+export function Logo({
+  height = 44,
+  ink = INK_DARK,
+  cut = "#000000",
+  className,
+  title = "Кино Хором",
+}: Look & { height?: number; className?: string; title?: string }) {
   return (
-    <span
-      className={`font-brand font-bold uppercase leading-none tracking-[0.02em] ${className}`}
+    <svg
+      viewBox="436 206 1240 402"
+      height={height}
+      width={(height * 1240) / 402}
+      {...svgProps(title, className)}
     >
-      Кино <span className="text-gold">Хором</span>
-    </span>
+      <Paths paths={MARK} ink={ink} cut={cut} />
+      <Paths
+        paths={WORD}
+        ink={ink}
+        cut={cut}
+        transform={`translate(${LOCKUP_DX} ${LOCKUP_DY})`}
+      />
+    </svg>
   );
 }
 
-/** Mark + wordmark side by side (site header, admin, login). */
-export function Logo({
-  size = 40,
-  wordClassName = "text-[20px]",
-  gap,
-  className = "",
-}: {
-  size?: number;
-  wordClassName?: string;
-  gap?: string;
-  className?: string;
-}) {
+/** Full stacked logo with the tagline (login, big placements). */
+export function LogoStacked({
+  height = 220,
+  ink = INK_DARK,
+  cut = "#000000",
+  className,
+  title = "Кино Хором. Хоромхон зуурын тайхамшиг",
+}: Look & { height?: number; className?: string; title?: string }) {
   return (
-    <span className={`inline-flex items-center gap-3 ${className}`}>
-      <LogoMark size={size} gap={gap} />
-      <Wordmark className={wordClassName} />
-    </span>
+    <svg
+      viewBox="425 200 640 760"
+      height={height}
+      width={(height * 640) / 760}
+      {...svgProps(title, className)}
+    >
+      <Paths paths={MARK} ink={ink} cut={cut} />
+      <Paths paths={WORD} ink={ink} cut={cut} />
+      <Paths paths={RULE} ink={ink} cut={cut} />
+      <Paths paths={TAGLINE} ink={ink} cut={cut} />
+    </svg>
   );
 }
+
+/** Colours of the original light-background artwork, for places that sit on white / off-white. */
+export const LOGO_ON_LIGHT = { ink: INK_LIGHT, cut: "#FDFDF9" } as const;

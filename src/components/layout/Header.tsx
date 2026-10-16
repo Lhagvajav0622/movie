@@ -15,7 +15,7 @@ export function Header({ categories }: { categories: string[] }) {
     <header className="sticky top-0 z-40 hidden bg-black/90 backdrop-blur md:block">
       <div className="mx-auto flex max-w-[1120px] items-center justify-between px-4 py-4">
         <Link href="/" aria-label="Кино Хором, нүүр хуудас">
-          <Logo size={44} wordClassName="text-[20px]" />
+          <Logo height={48} />
         </Link>
         <div className="flex items-center gap-8">
           <Link

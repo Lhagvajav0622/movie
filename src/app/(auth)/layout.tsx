@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
+import { LogoStacked } from "@/components/brand/Logo";
 
 /** Two-panel card from the Figma login screens: form on the left, brand panel on the right. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             aria-label="Кино Хором, нүүр хуудас"
             className="mb-4 flex justify-center"
           >
-            <Logo size={56} wordClassName="text-[24px]" />
+            <LogoStacked height={190} />
           </Link>
           {children}
         </div>
