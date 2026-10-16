@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 
 /** Two-panel card from the Figma login screens: form on the left, brand panel on the right. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -14,8 +15,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       />
       <div className="grid w-full max-w-[960px] overflow-hidden rounded-2xl border border-stroke bg-black shadow-glow md:grid-cols-2">
         <div className="flex flex-col justify-center px-6 py-10 sm:px-12">
-          <Link href="/" className="mb-2 text-center text-4xl font-bold">
-            Mhub
+          <Link
+            href="/"
+            aria-label="Кино Хором, нүүр хуудас"
+            className="mb-4 flex justify-center"
+          >
+            <Logo size={56} wordClassName="text-[24px]" />
           </Link>
           {children}
         </div>

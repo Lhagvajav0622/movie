@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Logo } from "@/components/brand/Logo";
 import { IconChevronDown, IconHome, IconSearch, IconUser } from "@/components/ui/icons";
 
 /** Desktop header (Figma "Header / home", 1088 wide). Hidden on mobile, which uses its own top bar. */
@@ -13,8 +14,8 @@ export function Header({ categories }: { categories: string[] }) {
   return (
     <header className="sticky top-0 z-40 hidden bg-black/90 backdrop-blur md:block">
       <div className="mx-auto flex max-w-[1120px] items-center justify-between px-4 py-4">
-        <Link href="/" className="text-[28px] font-bold leading-9">
-          Mhub
+        <Link href="/" aria-label="Кино Хором, нүүр хуудас">
+          <Logo size={44} wordClassName="text-[20px]" />
         </Link>
         <div className="flex items-center gap-8">
           <Link

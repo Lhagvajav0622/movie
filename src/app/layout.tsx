@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "@fontsource/gabarito/700.css";
+import "@fontsource/unbounded/700.css";
 import "./globals.css";
 
 const siteUrl =
@@ -11,9 +12,9 @@ const siteUrl =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Mhub", template: "%s · Mhub" },
+  title: { default: "Кино Хором", template: "%s · Кино Хором" },
   description: "Кино, цуврал драм онлайн үзэх",
-  openGraph: { siteName: "Mhub", locale: "mn_MN", type: "website" },
+  openGraph: { siteName: "Кино Хором", locale: "mn_MN", type: "website" },
 };
 
 export const viewport: Viewport = {

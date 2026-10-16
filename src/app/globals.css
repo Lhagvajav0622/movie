@@ -19,6 +19,8 @@
 
   --font-sans: "Manrope Variable", system-ui, sans-serif;
   --font-display: "Gabarito", "Manrope Variable", sans-serif;
+  --font-brand: "Unbounded", "Manrope Variable", sans-serif;
+  --color-gold: #f2a93b;
 
   /* Typography scale (size / line-height) */
   --text-h1: 40px;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { Logo } from "@/components/brand/Logo";
 import { getSession, requireAdmin } from "@/server/auth";
 
 export const metadata: Metadata = {
@@ -44,8 +45,8 @@ export default async function AdminLayout({
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="border-b border-stroke bg-surface md:w-56 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between px-5 py-4 md:block">
-          <Link href="/" className="text-xl font-bold">
-            Mhub{" "}
+          <Link href="/" className="flex flex-col gap-1">
+            <Logo size={36} gap="#141416" wordClassName="text-[15px]" />
             <span className="text-body-2 font-medium text-brand-300">
               админ
             </span>

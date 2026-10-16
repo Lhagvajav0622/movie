@@ -1,4 +1,4 @@
-# Mhub — MVP
+# Кино Хором (Kino Khorom) — MVP
 
 Mongolian movie and vertical-drama streaming platform. Next.js (App Router) + Postgres (Drizzle) + Better Auth + Bunny Stream.
 
