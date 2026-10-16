@@ -4,7 +4,7 @@ import { getSession } from "@/server/auth";
 import { getTitleDetail } from "@/server/title";
 import { ReelFeed } from "@/components/player/ReelFeed";
 import { FilmPlayer } from "@/components/player/FilmPlayer";
-import { Header } from "@/components/layout/Header";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 
 export async function generateMetadata({ params }: PageProps<"/watch/[slug]/[ep]">): Promise<Metadata> {
   const { slug, ep } = await params;
@@ -37,7 +37,7 @@ export default async function WatchPage({ params }: PageProps<"/watch/[slug]/[ep
 
   return (
     <>
-      <Header />
+      <SiteHeader />
       <main className="flex-1 pb-16">
         <FilmPlayer
           titleId={t.id}

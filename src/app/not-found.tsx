@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 
 export default function NotFound() {
   return (
     <>
-      <Header />
+      <SiteHeader />
       <main className="grid flex-1 place-items-center px-4 py-24 text-center">
         <div className="flex max-w-sm flex-col items-center gap-4">
           <p className="font-display text-[56px] font-bold leading-none text-brand-300">404</p>

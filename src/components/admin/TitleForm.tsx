@@ -145,7 +145,7 @@ export function TitleForm({
           </div>
           <div>
             <span className="mb-1.5 block text-body-2 font-medium text-fg-muted">
-              Жанр
+              Ангилал
             </span>
             <div className="flex flex-wrap gap-2">
               {genres.map((g) => (

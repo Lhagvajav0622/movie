@@ -3,10 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { IconChevronDown, IconHome, IconSearch, IconUser } from "@/components/ui/icons";
-import { demoGenres } from "@/lib/demo";
 
 /** Desktop header (Figma "Header / home", 1088 wide). Hidden on mobile, which uses its own top bar. */
-export function Header() {
+export function Header({ categories }: { categories: string[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const homeActive = path === "/";
@@ -33,15 +32,23 @@ export function Header() {
               className="flex items-center gap-2 text-body font-medium"
               aria-expanded={open}
             >
-              Категори
+              Ангилал
               <IconChevronDown />
             </button>
             {open && (
-              <div className="absolute left-0 top-full z-50 w-48 rounded-lg border border-stroke bg-surface p-2 shadow-xl">
-                {demoGenres.map((g) => (
+              <div className="absolute left-0 top-full z-50 w-56 rounded-lg border border-stroke bg-surface p-2 shadow-xl">
+                <Link
+                  href="/search"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2 text-body-2 font-semibold hover:bg-surface-2"
+                >
+                  Бүх багц
+                </Link>
+                {categories.map((g) => (
                   <Link
                     key={g}
                     href={`/search?genre=${encodeURIComponent(g)}`}
+                    onClick={() => setOpen(false)}
                     className="block rounded-md px-3 py-2 text-body-2 text-fg-muted hover:bg-surface-2 hover:text-fg"
                   >
                     {g}

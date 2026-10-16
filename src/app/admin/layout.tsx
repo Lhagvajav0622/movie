@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 const nav = [
   { href: "/admin/titles", label: "Бүтээлүүд" },
+  { href: "/admin/categories", label: "Ангилал" },
   { href: "/admin/orders", label: "Захиалга" },
   { href: "/admin/users", label: "Хэрэглэгчид" },
   { href: "/admin/stats", label: "Статистик" },

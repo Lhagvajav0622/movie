@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { listPublishedTitles } from "./catalog";
+import { listGenres, listPublishedTitles } from "./catalog";
 import { demoGenres, demoTitles } from "@/lib/demo";
 import type { GenreItem } from "@/components/catalog/GenreSection";
 
@@ -41,10 +41,12 @@ async function loadHomeData(): Promise<{
         isFeatured: r.isFeatured,
         adult: r.isAdult,
       }));
+      // Home tabs follow the order the admin set in "Ангилал", and only show categories that have titles.
       const used = new Set(items.flatMap((i) => i.genres));
-      const genres = demoGenres
+      const ordered = (await listGenres()).map((g) => g.nameMn);
+      const genres = ordered
         .filter((g) => used.has(g))
-        .concat([...used].filter((g) => !demoGenres.includes(g)));
+        .concat([...used].filter((g) => !ordered.includes(g)));
       return {
         items,
         genres: genres.length ? genres : demoGenres,
