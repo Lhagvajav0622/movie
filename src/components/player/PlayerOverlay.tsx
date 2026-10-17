@@ -1,5 +1,6 @@
 "use client";
 import { BuyButton } from "@/components/payment/BuyButton";
+import { TitlePackageButton } from "@/components/payment/TitlePackageButton";
 import { IconLock } from "@/components/ui/icons";
 import type { PlayState } from "./usePlayback";
 
@@ -43,6 +44,7 @@ export function PlayerOverlay({
           </p>
           <p className="text-body-2 text-fg-muted">Нэг удаа худалдаж аваад хугацаагүй үзээрэй.</p>
           <BuyButton titleId={titleId} priceMnt={priceMnt} className="mt-1 h-11 w-full text-[14px]" />
+          <TitlePackageButton titleId={titleId} className="h-11 w-full text-[14px]" />
         </div>
       </div>
     );
