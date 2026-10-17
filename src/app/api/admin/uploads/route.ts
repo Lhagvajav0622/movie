@@ -15,7 +15,7 @@ import { mp4Keys } from "@/server/video";
 
 /** 32 MiB parts: a 3 GB film is ~100 parts (R2 allows up to 10,000, minimum 5 MiB). */
 const PART_SIZE = 32 * 1024 * 1024;
-const MAX_BYTES = 12 * 1024 * 1024 * 1024;
+const MAX_BYTES = 40 * 1024 * 1024 * 1024;
 
 const base = {
   episodeId: z.string().uuid(),
@@ -40,7 +40,7 @@ const body = z.discriminatedUnion("action", [
     durationSec: z
       .number()
       .min(1)
-      .max(60 * 60 * 6),
+      .max(60 * 60 * 10),
     parts: z
       .array(
         z.object({
@@ -65,7 +65,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ code: "NOT_CONFIGURED" }, { status: 503 });
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
-    return NextResponse.json({ code: "BAD_REQUEST" }, { status: 400 });
+    return NextResponse.json(
+      {
+        code: "BAD_REQUEST",
+        // Which field was rejected (field names and rules only, never user data)
+        detail: parsed.error.issues
+          .slice(0, 3)
+          .map((i) => `${i.path.join(".") || "body"}: ${i.message}`)
+          .join("; ")
+          .slice(0, 200),
+      },
+      { status: 400 },
+    );
   const b = parsed.data;
 
   const [ep] = await db
