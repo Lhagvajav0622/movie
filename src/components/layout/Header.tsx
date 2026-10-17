@@ -58,6 +58,9 @@ export function Header({ categories }: { categories: string[] }) {
               </div>
             )}
           </div>
+          <Link href="/packages" className="text-body font-medium text-brand-300 hover:underline">
+            Багц
+          </Link>
           <div className="flex items-center gap-2">
             <Link href="/search" aria-label="Хайх" className="rounded-lg p-4 hover:bg-surface-2">
               <IconSearch />

@@ -14,6 +14,9 @@ export function CategoryChips({ categories, className = "" }: { categories: stri
           {c}
         </Link>
       ))}
+      <Link href="/packages" className={`${base} border-brand-300 text-brand-300 hover:bg-brand-500/10`}>
+        Багц авах
+      </Link>
     </nav>
   );
 }

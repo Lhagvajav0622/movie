@@ -8,6 +8,7 @@ import { TitleCard, type TitleCardData } from "@/components/catalog/TitleCard";
 import { AgeGate } from "@/components/catalog/AgeGate";
 import { TitleRow } from "@/components/catalog/TitleRow";
 import { countPublished, listGenres, searchTitles } from "@/server/catalog";
+import { packageForCategory } from "@/server/packages";
 import { demoGenres, demoTitles } from "@/lib/demo";
 
 export const metadata: Metadata = { title: "Хайх" };
@@ -63,6 +64,7 @@ export default async function SearchPage({
   const q = typeof sp.q === "string" ? sp.q : "";
   const genre = typeof sp.genre === "string" && sp.genre ? sp.genre : null;
   const { items, genres } = await load(q, genre);
+  const pkg = genre ? await packageForCategory(genre).catch(() => null) : null;
   const browsing = !q.trim() && !genre;
 
   const chip = (label: string, value: string | null) => {
@@ -102,6 +104,20 @@ export default async function SearchPage({
           {genres.map((g) => chip(g, g))}
         </div>
       </div>
+
+      {pkg && (
+        <div className="px-4 md:px-0">
+          <Link
+            href="/packages"
+            className="flex items-center justify-between gap-3 rounded-2xl border border-brand-300/50 bg-brand-500/10 px-4 py-3"
+          >
+            <span className="text-body-2">
+              <b>{pkg.name}</b> багц: {pkg.days} хоног, бүх кино
+            </span>
+            <span className="shrink-0 text-body-2 font-semibold text-brand-300">{pkg.priceMnt.toLocaleString("mn-MN")}₮ →</span>
+          </Link>
+        </div>
+      )}
 
       {genre === "+18" && (
         <div className="px-4 md:px-0">

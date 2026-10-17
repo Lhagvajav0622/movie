@@ -1,11 +1,12 @@
 import "server-only";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { extendPass } from "@/lib/package-pass";
 import { db, schema } from "./db";
 import { generateOrderCode } from "./order-code";
 import { providerFor, type PayMethod } from "./payments";
 import type { Invoice } from "./payments/types";
 
-const { orders, purchases, titles } = schema;
+const { orders, purchases, titles, packages, packageSubs, genres } = schema;
 
 export type CreateOrderResult =
   | { ok: true; order: typeof orders.$inferSelect; invoice: Invoice }
@@ -54,6 +55,42 @@ export async function createOrder(userId: string, titleId: string, method: PayMe
   return { ok: true, order, invoice };
 }
 
+/** Buy a category pass (limited days). The price and length come from the DB. */
+export async function createPackageOrder(userId: string, packageId: string, method: PayMethod): Promise<CreateOrderResult> {
+  const [p] = await db
+    .select({ id: packages.id, priceMnt: packages.priceMnt, days: packages.days, genreName: genres.nameMn })
+    .from(packages)
+    .leftJoin(genres, eq(genres.id, packages.genreId))
+    .where(eq(packages.id, packageId))
+    .limit(1);
+  if (!p || p.priceMnt <= 0) return { ok: false, code: "NOT_FOUND" };
+
+  const provider = providerFor(method);
+  if (!provider.available()) return { ok: false, code: "UNAVAILABLE" };
+  const code = generateOrderCode();
+  const name = `${p.genreName ?? "Бүх багц"} · ${p.days} хоног`;
+  let invoice: Invoice;
+  try {
+    invoice = await provider.createInvoice({ code, amountMnt: p.priceMnt, description: name });
+  } catch {
+    return { ok: false, code: "PROVIDER_ERROR" };
+  }
+  const [order] = await db
+    .insert(orders)
+    .values({
+      code,
+      userId,
+      packageId,
+      amountMnt: p.priceMnt,
+      method,
+      status: "pending",
+      providerInvoiceId: invoice.invoiceId,
+      isTest: !provider.live,
+    })
+    .returning();
+  return { ok: true, order, invoice };
+}
+
 export async function getOrderFor(userId: string, orderId: string) {
   const [o] = await db
     .select()
@@ -75,10 +112,24 @@ export async function settleOrder(orderId: string) {
       const [existing] = await tx.select().from(orders).where(eq(orders.id, orderId)).limit(1);
       return existing ?? null;
     }
-    await tx
-      .insert(purchases)
-      .values({ userId: o.userId, titleId: o.titleId, orderId: o.id, source: "order" })
-      .onConflictDoNothing();
+    if (o.packageId) {
+      const [pkg] = await tx.select({ days: packages.days }).from(packages).where(eq(packages.id, o.packageId)).limit(1);
+      const [cur] = await tx
+        .select({ expiresAt: packageSubs.expiresAt })
+        .from(packageSubs)
+        .where(and(eq(packageSubs.userId, o.userId), eq(packageSubs.packageId, o.packageId)))
+        .limit(1);
+      const expiresAt = extendPass(cur?.expiresAt, pkg?.days ?? 30);
+      await tx
+        .insert(packageSubs)
+        .values({ userId: o.userId, packageId: o.packageId, expiresAt })
+        .onConflictDoUpdate({ target: [packageSubs.userId, packageSubs.packageId], set: { expiresAt } });
+    } else if (o.titleId) {
+      await tx
+        .insert(purchases)
+        .values({ userId: o.userId, titleId: o.titleId, orderId: o.id, source: "order" })
+        .onConflictDoNothing();
+    }
     return o;
   });
 }
@@ -94,12 +145,14 @@ export async function listOrdersAdmin(limit = 100) {
       isTest: orders.isTest,
       createdAt: orders.createdAt,
       paidAt: orders.paidAt,
-      titleName: titles.name,
+      titleName: sql<string>`coalesce(${titles.name}, 'Багц: ' || coalesce(${genres.nameMn}, 'Бүх багц'))`,
       userName: schema.user.name,
       userPhone: schema.user.phoneNumber,
     })
     .from(orders)
-    .innerJoin(titles, eq(titles.id, orders.titleId))
+    .leftJoin(titles, eq(titles.id, orders.titleId))
+    .leftJoin(packages, eq(packages.id, orders.packageId))
+    .leftJoin(genres, eq(genres.id, packages.genreId))
     .innerJoin(schema.user, eq(schema.user.id, orders.userId))
     .orderBy(desc(orders.createdAt))
     .limit(limit);

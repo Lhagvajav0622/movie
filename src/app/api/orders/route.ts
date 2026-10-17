@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/server/auth";
-import { createOrder } from "@/server/orders";
+import { createOrder, createPackageOrder } from "@/server/orders";
 import { paymentMode } from "@/server/payments";
 
-const body = z.object({ titleId: z.string().uuid(), method: z.enum(["qpay", "socialpay"]) });
+const body = z
+  .object({
+    titleId: z.string().uuid().optional(),
+    packageId: z.string().uuid().optional(),
+    method: z.enum(["qpay", "socialpay"]),
+  })
+  .refine((b) => Boolean(b.titleId) !== Boolean(b.packageId));
 
 /** Start a purchase. The price comes from the DB, never from the request. */
 export async function POST(req: Request) {
@@ -13,7 +19,10 @@ export async function POST(req: Request) {
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ code: "BAD_REQUEST" }, { status: 400 });
 
-  const r = await createOrder(session.user.id, parsed.data.titleId, parsed.data.method);
+  const d = parsed.data;
+  const r = d.packageId
+    ? await createPackageOrder(session.user.id, d.packageId, d.method)
+    : await createOrder(session.user.id, d.titleId!, d.method);
   if (!r.ok) {
     const status = r.code === "NOT_FOUND" ? 404 : r.code === "UNAVAILABLE" ? 503 : r.code === "PROVIDER_ERROR" ? 502 : 409;
     return NextResponse.json({ code: r.code }, { status });

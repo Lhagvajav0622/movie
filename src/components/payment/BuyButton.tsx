@@ -29,10 +29,17 @@ const METHODS: { id: Method; label: string }[] = [
  */
 export function BuyButton({
   titleId,
+  packageId,
+  days,
+  label,
   priceMnt,
   className = "",
 }: {
-  titleId: string;
+  titleId?: string;
+  /** Buy a category pass instead of one title */
+  packageId?: string;
+  days?: number;
+  label?: string;
   priceMnt: number;
   className?: string;
 }) {
@@ -56,7 +63,7 @@ export function BuyButton({
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titleId, method }),
+      body: JSON.stringify(packageId ? { packageId, method } : { titleId, method }),
     }).catch(() => null);
     if (res?.status === 401) {
       router.push(`/login?next=${encodeURIComponent(pathname)}`);
@@ -109,7 +116,7 @@ export function BuyButton({
         onClick={() => setOpen(true)}
         className={`rounded-lg border-[1.5px] border-brand-100 bg-brand-50 font-semibold text-on-brand transition hover:bg-white ${className}`}
       >
-        Худалдан авах · {price}
+        {packageId ? `${label ?? "Багц авах"}` : "Худалдан авах"} · {price}
       </button>
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4" onClick={close}>
@@ -124,7 +131,9 @@ export function BuyButton({
             {(step.s === "choose" || step.s === "creating") && (
               <>
                 <p className="mt-2 text-body-2 text-fg-muted">
-                  Нэг удаа {price} төлөөд энэ киног хугацаагүй, хэдэн ч удаа үзнэ.
+                  {packageId
+                    ? `${price} төлөөд ${days ?? 30} хоногийн турш энэ багцын бүх киног хязгааргүй үзнэ.`
+                    : `Нэг удаа ${price} төлөөд энэ киног хугацаагүй, хэдэн ч удаа үзнэ.`}
                 </p>
                 <p className="mt-4 text-body-2 font-semibold">Төлбөрийн хэлбэр</p>
                 <div className="mt-2 flex flex-col gap-2">

@@ -237,6 +237,20 @@ export const orderStatus = pgEnum("order_status", [
 ]);
 export const purchaseSource = pgEnum("purchase_source", ["order", "admin"]);
 
+/**
+ * A sellable pass. genreId = a category (all its titles); null = "Бүх багц" (every title except +18).
+ * priceMnt 0 = not on sale. Prices and days are set by the admin.
+ */
+export const packages = pgTable("packages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  genreId: uuid("genre_id")
+    .unique()
+    .references(() => genres.id, { onDelete: "cascade" }),
+  priceMnt: integer("price_mnt").notNull().default(0),
+  days: integer("days").notNull().default(30),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const orders = pgTable(
   "orders",
   {
@@ -246,9 +260,9 @@ export const orders = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    titleId: uuid("title_id")
-      .notNull()
-      .references(() => titles.id),
+    /** Exactly one of titleId (one title, lifetime) or packageId (a category pass, limited days) is set. */
+    titleId: uuid("title_id").references(() => titles.id),
+    packageId: uuid("package_id").references(() => packages.id, { onDelete: "set null" }),
     amountMnt: integer("amount_mnt").notNull(),
     method: orderMethod("method").notNull().default("qpay"),
     /** true when settled by the built-in test provider (no real money moved) */
@@ -287,3 +301,19 @@ export const userAccess = pgTable("user_access", {
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+/** A user's active pass for one package; buying again extends `expiresAt`. */
+export const packageSubs = pgTable(
+  "package_subs",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    packageId: uuid("package_id")
+      .notNull()
+      .references(() => packages.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.packageId] })],
+);

@@ -10,7 +10,7 @@ export async function hasTitleAccess(
   userId: string,
   titleId: string,
 ): Promise<boolean> {
-  const [[p], [a]] = await Promise.all([
+  const [[p], [a], pass] = await Promise.all([
     db
       .select({ u: purchases.userId })
       .from(purchases)
@@ -21,8 +21,21 @@ export async function hasTitleAccess(
       .from(userAccess)
       .where(eq(userAccess.userId, userId))
       .limit(1),
+    // A running category pass covers the title when it matches one of the title's categories,
+    // or when it is "Бүх багц" (every title except +18).
+    db.execute<{ ok: number }>(sql`
+      select 1 as ok
+      from package_subs ps
+      join packages pk on pk.id = ps.package_id
+      where ps.user_id = ${userId}
+        and ps.expires_at > now()
+        and (
+          (pk.genre_id is null and not exists (select 1 from titles t where t.id = ${titleId} and t.is_adult))
+          or pk.genre_id in (select genre_id from title_genres where title_id = ${titleId})
+        )
+      limit 1`),
   ]);
-  return Boolean(p) || proActive(a);
+  return Boolean(p) || proActive(a) || pass.length > 0;
 }
 
 export async function listUsersAdmin(q: string) {
