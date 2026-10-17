@@ -127,7 +127,7 @@ export function PlayerControls({
         }}
       >
         <div className="h-1 w-full rounded-full bg-white/25 group-hover:h-1.5">
-          <div className="h-full rounded-full bg-brand-400" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-brand-400 text-on-brand" style={{ width: `${pct}%` }} />
         </div>
         <div
           className="absolute size-3 -translate-x-1/2 rounded-full bg-white shadow"

@@ -25,9 +25,9 @@ export function MediaListItem({
         <div className="relative h-[112px] w-[76px] shrink-0 overflow-hidden rounded-[4px]">
           <Poster t={{ ...t, name: "" }} className="size-full" />
           {progress != null && (
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-black/60">
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-bg/60">
               <div
-                className="h-full bg-brand-400"
+                className="h-full bg-brand-400 text-on-brand"
                 style={{
                   width: `${Math.min(100, Math.max(2, progress * 100))}%`,
                 }}

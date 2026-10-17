@@ -83,7 +83,7 @@ export function SignupFlow({ next }: { next: string }) {
         <p className="text-body font-semibold">{titles[step]}</p>
         <div className="mx-auto mt-3 flex w-32 gap-1.5">
           {steps.map((s, i) => (
-            <span key={s} className={`h-1 flex-1 rounded-full ${i <= idx ? "bg-brand-500" : "bg-stroke"}`} />
+            <span key={s} className={`h-1 flex-1 rounded-full ${i <= idx ? "bg-brand-500 text-on-brand" : "bg-stroke"}`} />
           ))}
         </div>
       </div>

@@ -114,7 +114,7 @@ function GenreChips({ genres }: { genres: string[] }) {
         <Link
           key={g}
           href={`/search?genre=${encodeURIComponent(g)}`}
-          className="rounded-lg border-[1.5px] border-stroke bg-black px-2 py-1 text-caption font-medium leading-[22px]"
+          className="rounded-lg border-[1.5px] border-stroke bg-bg px-2 py-1 text-caption font-medium leading-[22px]"
         >
           {g}
         </Link>
@@ -171,7 +171,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
                   </p>
                 )}
                 <div className="flex items-center gap-4">
-                  <PlayButton className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] hover:bg-brand-400">
+                  <PlayButton className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] hover:bg-brand-400 text-on-brand">
                     {playLabel}
                     <IconPlay />
                   </PlayButton>
@@ -202,7 +202,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
               <GenreChips genres={t.genres} />
             </div>
             <div className="flex items-center gap-2">
-              <PlayButton className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]">
+              <PlayButton className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]">
                 {playLabel}
               </PlayButton>
               <SaveButton
@@ -280,7 +280,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
           <div className="flex items-center gap-2">
             <Link
               href={`/watch/${t.slug}/${firstEp}`}
-              className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]"
+              className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]"
             >
               {playLabel}
             </Link>
@@ -348,7 +348,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
             <div className="flex items-center gap-4">
               <Link
                 href={`/watch/${t.slug}/${firstEp}`}
-                className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] hover:bg-brand-400"
+                className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] hover:bg-brand-400 text-on-brand"
               >
                 {playLabel}
                 <IconPlay />

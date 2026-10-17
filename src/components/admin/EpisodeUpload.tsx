@@ -270,7 +270,7 @@ export function EpisodeUpload({
       {busy && (
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
           <div
-            className="h-full bg-brand-500 transition-all"
+            className="h-full bg-brand-500 text-on-brand transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>

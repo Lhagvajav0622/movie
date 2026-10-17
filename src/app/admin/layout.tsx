@@ -46,7 +46,7 @@ export default async function AdminLayout({
       <aside className="border-b border-stroke bg-surface md:w-56 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between px-5 py-4 md:block">
           <Link href="/" className="flex flex-col gap-1">
-            <Logo height={34} cut="#141416" />
+            <Logo height={34} cut="#071b38" />
             <span className="text-body-2 font-medium text-brand-300">
               админ
             </span>

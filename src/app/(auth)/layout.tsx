@@ -10,10 +10,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(60% 50% at 50% 40%, rgba(94,73,213,.35), transparent 70%), linear-gradient(180deg,#0b0820,#000 70%)",
+            "radial-gradient(60% 50% at 50% 40%, rgba(222,161,41,.22), transparent 70%), linear-gradient(180deg,#00224d,#00122b 70%)",
         }}
       />
-      <div className="grid w-full max-w-[960px] overflow-hidden rounded-2xl border border-stroke bg-black shadow-glow md:grid-cols-2">
+      <div className="grid w-full max-w-[960px] overflow-hidden rounded-2xl border border-stroke bg-bg shadow-glow md:grid-cols-2">
         <div className="flex flex-col justify-center px-6 py-10 sm:px-12">
           <Link
             href="/"
@@ -29,7 +29,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           className="relative hidden md:block"
           style={{
             background:
-              "radial-gradient(70% 60% at 50% 30%, rgba(145,130,229,.45), transparent 70%), linear-gradient(160deg,#2a1d6b,#0d0a1f 60%,#000)",
+              "radial-gradient(70% 60% at 50% 30%, rgba(222,161,41,.35), transparent 70%), linear-gradient(160deg,#002454,#00122b 60%,#00122b)",
           }}
         >
           <div className="absolute inset-0 grid grid-cols-3 gap-3 p-6 opacity-60 [mask-image:linear-gradient(180deg,#000_30%,transparent)]">

@@ -25,7 +25,7 @@ export default async function Page({
           placeholder="Утасны дугаар эсвэл нэрээр хайх"
           className="h-11 w-full max-w-sm rounded-lg border border-stroke bg-surface px-3 text-body-2 outline-none focus:border-brand-400"
         />
-        <button className="h-11 rounded-lg bg-brand-500 px-5 text-body-2 font-semibold hover:bg-brand-400">
+        <button className="h-11 rounded-lg bg-brand-500 text-on-brand px-5 text-body-2 font-semibold hover:bg-brand-400 text-on-brand">
           Хайх
         </button>
       </form>

@@ -148,7 +148,7 @@ export default async function EditTitlePage({
         )}
         <form action={addEpisode} className="mt-4">
           <input type="hidden" name="titleId" value={title.id} />
-          <button className="rounded-lg border border-brand-300 bg-brand-500 px-4 py-2 text-body-2 font-semibold hover:bg-brand-400">
+          <button className="rounded-lg border border-brand-300 bg-brand-500 text-on-brand px-4 py-2 text-body-2 font-semibold hover:bg-brand-400 text-on-brand">
             + Анги нэмэх
           </button>
         </form>
@@ -159,7 +159,7 @@ export default async function EditTitlePage({
           <p className="mt-2 text-fg-muted">
             Бүх ангийг нэг хавтсанд (ep1.mp4, ep2.mp4 …) хийгээд:
           </p>
-          <code className="mt-2 block overflow-x-auto whitespace-nowrap rounded bg-black px-3 py-2 text-caption text-brand-200">
+          <code className="mt-2 block overflow-x-auto whitespace-nowrap rounded bg-bg px-3 py-2 text-caption text-brand-200">
             npm run video -- --title {title.slug} --dir &quot;C:\videos\
             {title.slug}&quot;
           </code>

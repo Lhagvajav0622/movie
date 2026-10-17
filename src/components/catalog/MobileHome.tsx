@@ -11,7 +11,7 @@ export function MobileTopBar() {
     <div className="flex items-center pl-4 md:hidden">
       <Link
         href="/search"
-        className="flex flex-1 items-center gap-1 rounded-lg border border-stroke bg-black px-4 py-3 text-body tracking-[0.2px] text-fg-muted"
+        className="flex flex-1 items-center gap-1 rounded-lg border border-stroke bg-bg px-4 py-3 text-body tracking-[0.2px] text-fg-muted"
       >
         <IconSearch />
         Хайх
@@ -89,7 +89,7 @@ export function HeroCarousel({ items }: { items: TitleCardData[] }) {
           i === index ? (
             <span key={`${t.slug}-${index}`} className="relative h-1.5 w-20 overflow-hidden rounded-[20px] bg-brand-50/30">
               <span
-                className="absolute left-0 top-0 h-full min-w-1.5 rounded-[7px] bg-brand-500"
+                className="absolute left-0 top-0 h-full min-w-1.5 rounded-[7px] bg-brand-500 text-on-brand"
                 style={items.length > 1 ? { animation: "hero-progress 5s linear forwards" } : { width: "100%" }}
               />
             </span>
@@ -155,13 +155,13 @@ export function StarredCard({ t, meta }: { t: TitleCardData; meta: string[] }) {
         <div className="flex w-full items-center gap-2">
           <Link
             href={`/title/${t.slug}`}
-            className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]"
+            className="flex-1 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-6 py-3 text-center text-[13px] font-medium leading-4 tracking-[0.5px]"
           >
             Тоглуулах
           </Link>
           <button
             type="button"
-            className="rounded-lg border-[1.5px] border-brand-100 bg-brand-50 px-6 py-3 text-[13px] font-medium leading-4 tracking-[0.5px] text-brand-500"
+            className="rounded-lg border-[1.5px] border-brand-100 bg-brand-50 px-6 py-3 text-[13px] font-medium leading-4 tracking-[0.5px] text-on-brand"
           >
             Хадгалах
           </button>

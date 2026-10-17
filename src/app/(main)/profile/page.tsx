@@ -37,7 +37,7 @@ export default async function ProfilePage() {
       <h1 className="text-[20px] font-bold leading-7 md:text-h4">Профайл</h1>
 
       <section className="mt-5 flex items-center gap-4 rounded-2xl border border-stroke bg-surface p-5">
-        <div className="grid size-14 place-items-center rounded-full bg-brand-500 text-xl font-bold">
+        <div className="grid size-14 place-items-center rounded-full bg-brand-500 text-on-brand text-xl font-bold">
           {initial && /\p{L}/u.test(initial) ? initial : <IconUser size={28} />}
         </div>
         <div className="min-w-0 flex-1">

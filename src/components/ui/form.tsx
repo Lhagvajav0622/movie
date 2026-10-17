@@ -91,7 +91,7 @@ export function Button({
 }) {
   const v =
     variant === "primary"
-      ? "bg-brand-500 text-white hover:bg-brand-400"
+      ? "bg-brand-500 text-on-brand hover:bg-brand-400 text-on-brand"
       : variant === "secondary"
         ? "bg-[#e6e1ff] text-brand-500 hover:bg-white"
         : "bg-transparent text-fg-muted hover:text-fg";

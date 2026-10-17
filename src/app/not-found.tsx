@@ -12,7 +12,7 @@ export default function NotFound() {
           <p className="text-body-2 text-fg-muted">Холбоос буруу эсвэл энэ бүтээл устгагдсан байж магадгүй.</p>
           <Link
             href="/"
-            className="rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-body-2 font-semibold hover:bg-brand-400"
+            className="rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-6 py-3 text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
           >
             Нүүр хуудас руу
           </Link>

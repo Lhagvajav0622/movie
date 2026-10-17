@@ -24,7 +24,7 @@ export function PlayerOverlay({
   }
   if (state.status === "unavailable" || state.status === "error") {
     return (
-      <div className="absolute inset-0 grid place-items-center bg-black/80 p-6 text-center">
+      <div className="absolute inset-0 grid place-items-center bg-bg/80 p-6 text-center">
         <p className="text-body-2 text-fg-muted">
           {state.status === "error" ? "Алдаа гарлаа. Дахин оролдоно уу." : "Энэ ангийн видео хараахан байршаагүй байна."}
         </p>
@@ -33,7 +33,7 @@ export function PlayerOverlay({
   }
   if (state.status === "locked" || previewEnded) {
     return (
-      <div className="absolute inset-0 grid place-items-center bg-black/80 p-6">
+      <div className="absolute inset-0 grid place-items-center bg-bg/80 p-6">
         <div className="flex max-w-xs flex-col items-center gap-3 text-center">
           <span className="grid size-12 place-items-center rounded-full bg-brand-500/20 text-brand-200">
             <IconLock size={24} />

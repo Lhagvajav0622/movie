@@ -42,7 +42,7 @@ export function FilmPlayer({
         <p className="absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-body font-bold">{titleName}</p>
       </div>
 
-      <div className="relative aspect-video w-full overflow-hidden bg-black md:rounded-lg">
+      <div className="relative aspect-video w-full overflow-hidden bg-bg md:rounded-lg">
         <video
           ref={videoRef}
           controls
@@ -68,7 +68,7 @@ export function FilmPlayer({
           {next && (
             <Link
               href={`/watch/${slug}/${next.number}`}
-              className="shrink-0 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-4 py-2 text-body-2 font-semibold"
+              className="shrink-0 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-4 py-2 text-body-2 font-semibold"
             >
               Дараагийн анги →
             </Link>

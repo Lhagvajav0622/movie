@@ -41,7 +41,7 @@ export function EpisodeList({
           />
         )}
         {e.access === "locked" && (
-          <span className="absolute inset-0 grid place-items-center bg-black/50 text-fg">
+          <span className="absolute inset-0 grid place-items-center bg-bg/50 text-fg">
             <IconLock size={20} />
           </span>
         )}

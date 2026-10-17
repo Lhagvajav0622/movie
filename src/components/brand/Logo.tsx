@@ -42,7 +42,7 @@ function svgProps(title: string | undefined, className: string | undefined) {
 export function LogoMark({
   height = 40,
   ink = INK_DARK,
-  cut = "#000000",
+  cut = "#00122b",
   className,
   title,
 }: Look & { height?: number; className?: string; title?: string }) {
@@ -66,7 +66,7 @@ const LOCKUP_DY = -337.5; // wordmark centre meets the mark's centre line
 export function Logo({
   height = 44,
   ink = INK_DARK,
-  cut = "#000000",
+  cut = "#00122b",
   className,
   title = "Кино Хором",
 }: Look & { height?: number; className?: string; title?: string }) {
@@ -92,7 +92,7 @@ export function Logo({
 export function LogoStacked({
   height = 220,
   ink = INK_DARK,
-  cut = "#000000",
+  cut = "#00122b",
   className,
   title = "Кино Хором. Хоромхон зуурын тайхамшиг",
 }: Look & { height?: number; className?: string; title?: string }) {

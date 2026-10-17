@@ -329,7 +329,7 @@ export function TitleForm({
         )}
         <button
           disabled={pending}
-          className="h-11 w-full rounded-lg bg-brand-500 text-body-2 font-semibold hover:bg-brand-400 disabled:opacity-50"
+          className="h-11 w-full rounded-lg bg-brand-500 text-on-brand text-body-2 font-semibold hover:bg-brand-400 text-on-brand disabled:opacity-50"
         >
           {pending ? "Хадгалж байна…" : "Хадгалах"}
         </button>

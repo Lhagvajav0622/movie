@@ -14,7 +14,7 @@ export function SkipButtons({
     v.currentTime = Math.max(0, Math.min(v.currentTime + d, end));
   };
   const cls =
-    "pointer-events-auto grid size-11 place-items-center rounded-full bg-black/45 text-[12px] font-bold text-white backdrop-blur hover:bg-black/65 active:scale-95";
+    "pointer-events-auto grid size-11 place-items-center rounded-full bg-bg/45 text-[12px] font-bold text-white backdrop-blur hover:bg-bg/65 active:scale-95";
   return (
     <div className="pointer-events-none absolute inset-x-3 top-1/2 flex -translate-y-1/2 justify-between">
       <button

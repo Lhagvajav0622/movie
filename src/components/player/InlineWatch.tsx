@@ -103,7 +103,7 @@ export function FilmStage({
     <>
       <div
         ref={stageRef}
-        className="relative aspect-video w-full overflow-hidden bg-black md:rounded-lg md:shadow-hero"
+        className="relative aspect-video w-full overflow-hidden bg-bg md:rounded-lg md:shadow-hero"
       >
         {playing ? (
           <>
@@ -136,7 +136,7 @@ export function FilmStage({
               onClick={() => current && play()}
               className="absolute inset-0 grid place-items-center md:hidden"
             >
-              <span className="grid size-14 place-items-center rounded-full bg-black/55 backdrop-blur">
+              <span className="grid size-14 place-items-center rounded-full bg-bg/55 backdrop-blur">
                 <IconPlay />
               </span>
             </button>
@@ -155,7 +155,7 @@ export function FilmStage({
             <button
               type="button"
               onClick={() => play(next.id)}
-              className="shrink-0 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-4 py-2 text-body-2 font-semibold"
+              className="shrink-0 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-4 py-2 text-body-2 font-semibold"
             >
               Дараагийн анги →
             </button>

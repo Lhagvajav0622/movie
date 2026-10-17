@@ -25,7 +25,7 @@ export function SearchBox({ initial }: { initial: string }) {
   }, [q, params, router]);
 
   return (
-    <label className="flex items-center gap-1 rounded-lg border border-stroke bg-black px-4 py-3 focus-within:border-brand-400">
+    <label className="flex items-center gap-1 rounded-lg border border-stroke bg-bg px-4 py-3 focus-within:border-brand-400">
       <IconSearch className="shrink-0 text-fg-muted" />
       <input
         type="search"

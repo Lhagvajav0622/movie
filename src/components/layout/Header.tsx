@@ -12,7 +12,7 @@ export function Header({ categories }: { categories: string[] }) {
   const homeActive = path === "/";
 
   return (
-    <header className="sticky top-0 z-40 hidden bg-black/90 backdrop-blur md:block">
+    <header className="sticky top-0 z-40 hidden bg-bg/90 backdrop-blur md:block">
       <div className="mx-auto flex max-w-[1120px] items-center justify-between px-4 py-4">
         <Link href="/" aria-label="Кино Хором, нүүр хуудас">
           <Logo height={48} />

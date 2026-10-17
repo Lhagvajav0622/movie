@@ -23,7 +23,7 @@ export function BackArrow({ fallback = "/", className = "p-4" }: { fallback?: st
 export function BackBar({ title, href }: { title: string; href?: string }) {
   const router = useRouter();
   return (
-    <div className="sticky top-0 z-30 flex h-14 items-center bg-black/90 backdrop-blur md:hidden">
+    <div className="sticky top-0 z-30 flex h-14 items-center bg-bg/90 backdrop-blur md:hidden">
       <button
         type="button"
         aria-label="Буцах"
@@ -56,7 +56,7 @@ export function DetailTabs({
     <div className="flex flex-col gap-4">
       <div
         role="tablist"
-        className="flex gap-2 rounded-[8.8px] border border-stroke bg-black p-0.5"
+        className="flex gap-2 rounded-[8.8px] border border-stroke bg-bg p-0.5"
       >
         {tabs.map((t, idx) => (
           <button

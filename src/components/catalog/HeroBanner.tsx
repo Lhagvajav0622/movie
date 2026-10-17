@@ -27,7 +27,7 @@ export function HeroButtons({ slug, id, saved = false }: { slug: string; id?: st
     <div className="flex items-center gap-4">
       <Link
         href={`/title/${slug}`}
-        className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] transition hover:bg-brand-400"
+        className="flex w-[264px] items-center justify-center gap-3 rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-8 py-4 text-[17px] font-semibold leading-6 tracking-[1px] transition hover:bg-brand-400 text-on-brand"
       >
         Тоглуулах
         <IconPlay />

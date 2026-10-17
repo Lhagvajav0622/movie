@@ -45,7 +45,7 @@ export function SaveButton({
         onClick={toggle}
         aria-label={label}
         aria-pressed={saved}
-        className={`rounded-lg border-[1.5px] border-brand-300 p-4 transition ${saved ? "bg-brand-500" : "bg-brand-400 hover:bg-brand-500"}`}
+        className={`rounded-lg border-[1.5px] border-brand-300 p-4 transition ${saved ? "bg-brand-500 text-on-brand" : "bg-brand-400 text-on-brand hover:bg-brand-500 text-on-brand"}`}
       >
         {saved ? (
           <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -63,7 +63,7 @@ export function SaveButton({
         type="button"
         onClick={toggle}
         aria-pressed={saved}
-        className="rounded-lg border-[1.5px] border-brand-100 bg-brand-50 px-6 py-3 text-[13px] font-medium leading-4 tracking-[0.5px] text-brand-500"
+        className="rounded-lg border-[1.5px] border-brand-100 bg-brand-50 px-6 py-3 text-[13px] font-medium leading-4 tracking-[0.5px] text-on-brand"
       >
         {label}
       </button>
@@ -75,7 +75,7 @@ export function SaveButton({
       onClick={toggle}
       aria-pressed={saved}
       className={`shrink-0 rounded-lg border-[1.5px] px-4 py-2 text-[14px] font-medium leading-6 ${
-        saved ? "border-brand-400 bg-brand-500/20" : "border-stroke bg-black"
+        saved ? "border-brand-400 bg-brand-500/20" : "border-stroke bg-bg"
       }`}
     >
       {label}

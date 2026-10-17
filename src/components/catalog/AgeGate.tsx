@@ -26,7 +26,7 @@ export function AgeGate({ variant }: { variant: "banner" | "overlay" }) {
         <button
           type="button"
           onClick={confirm18}
-          className="rounded-lg bg-brand-500 px-5 py-2 text-body-2 font-bold"
+          className="rounded-lg bg-brand-500 text-on-brand px-5 py-2 text-body-2 font-bold"
         >
           Тийм, 18 хүрсэн
         </button>
@@ -51,7 +51,7 @@ export function AgeGate({ variant }: { variant: "banner" | "overlay" }) {
   return (
     <div
       data-age-gate
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-6 backdrop-blur-md"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-bg/90 p-6 backdrop-blur-md"
     >
       {body}
     </div>

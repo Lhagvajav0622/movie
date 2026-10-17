@@ -73,7 +73,7 @@ export default async function Page({ params }: PageProps<"/admin/users/[id]">) {
             <option value="365">365 хоног</option>
             <option value="forever">Хугацаагүй</option>
           </select>
-          <button className={`${btn} bg-brand-500 hover:bg-brand-400`}>
+          <button className={`${btn} bg-brand-500 text-on-brand hover:bg-brand-400 text-on-brand`}>
             {pro ? "Шинэчлэх" : "Pro эрх өгөх"}
           </button>
         </form>
@@ -133,7 +133,7 @@ export default async function Page({ params }: PageProps<"/admin/users/[id]">) {
                 </option>
               ))}
             </select>
-            <button className={`${btn} bg-brand-500 hover:bg-brand-400`}>
+            <button className={`${btn} bg-brand-500 text-on-brand hover:bg-brand-400 text-on-brand`}>
               Үзэх эрх өгөх
             </button>
           </form>

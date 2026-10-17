@@ -13,7 +13,7 @@ export default async function AdminTitlesPage() {
         <h1 className="text-h4 font-bold">Бүтээлүүд</h1>
         <Link
           href="/admin/titles/new"
-          className="rounded-lg bg-brand-500 px-4 py-2.5 text-body-2 font-semibold hover:bg-brand-400"
+          className="rounded-lg bg-brand-500 text-on-brand px-4 py-2.5 text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
         >
           + Шинэ бүтээл
         </Link>

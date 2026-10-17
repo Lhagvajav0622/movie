@@ -107,12 +107,12 @@ export function BuyButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`rounded-lg border-[1.5px] border-brand-100 bg-brand-50 font-semibold text-brand-500 transition hover:bg-white ${className}`}
+        className={`rounded-lg border-[1.5px] border-brand-100 bg-brand-50 font-semibold text-on-brand transition hover:bg-white ${className}`}
       >
         Худалдан авах · {price}
       </button>
       {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" onClick={close}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-bg/70 p-4" onClick={close}>
           <div
             role="dialog"
             aria-modal
@@ -171,7 +171,7 @@ export function BuyButton({
                     <button
                       type="button"
                       onClick={() => testPay(step.id)}
-                      className="mt-4 h-11 w-full rounded-lg bg-brand-500 text-body-2 font-semibold hover:bg-brand-400"
+                      className="mt-4 h-11 w-full rounded-lg bg-brand-500 text-on-brand text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
                     >
                       Төлбөр төлөх (тест)
                     </button>
@@ -217,7 +217,7 @@ export function BuyButton({
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
-                  className="mt-4 h-11 w-full rounded-lg bg-brand-500 text-body-2 font-semibold hover:bg-brand-400"
+                  className="mt-4 h-11 w-full rounded-lg bg-brand-500 text-on-brand text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
                 >
                   Үзэх
                 </button>

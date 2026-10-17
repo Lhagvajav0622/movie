@@ -54,7 +54,7 @@ export default async function AdminCategoriesPage({
         />
         <button
           type="submit"
-          className="h-10 shrink-0 rounded-lg bg-brand-500 px-4 text-body-2 font-semibold hover:bg-brand-400"
+          className="h-10 shrink-0 rounded-lg bg-brand-500 text-on-brand px-4 text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
         >
           + Нэмэх
         </button>

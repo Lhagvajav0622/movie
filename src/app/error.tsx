@@ -17,7 +17,7 @@ export default function GlobalRouteError({ error, retry }: { error: Error & { di
           <button
             type="button"
             onClick={() => retry()}
-            className="rounded-lg border-[1.5px] border-brand-300 bg-brand-500 px-6 py-3 text-body-2 font-semibold hover:bg-brand-400"
+            className="rounded-lg border-[1.5px] border-brand-300 bg-brand-500 text-on-brand px-6 py-3 text-body-2 font-semibold hover:bg-brand-400 text-on-brand"
           >
             Дахин оролдох
           </button>

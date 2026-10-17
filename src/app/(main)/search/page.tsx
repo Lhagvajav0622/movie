@@ -77,8 +77,8 @@ export default async function SearchPage({
         scroll={false}
         className={`shrink-0 rounded-lg border-[1.5px] px-4 py-2 text-[14px] font-medium leading-6 ${
           active
-            ? "border-brand-300 bg-brand-500"
-            : "border-stroke bg-black text-fg"
+            ? "border-brand-300 bg-brand-500 text-on-brand"
+            : "border-stroke bg-bg text-fg"
         }`}
       >
         {label}

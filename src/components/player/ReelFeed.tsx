@@ -61,7 +61,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
+    <div className="fixed inset-0 z-50 bg-bg">
       {/* Desktop: a centered 9:16 "phone" stage; mobile: full screen */}
       <div className="relative mx-auto h-dvh w-full md:max-w-[calc(100dvh*9/16)] md:overflow-hidden">
       <div ref={scroller} className="no-scrollbar h-dvh snap-y snap-mandatory overflow-y-auto">
@@ -79,7 +79,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
                 onSoundBlocked={setSoundBlocked}
               />
             ) : (
-              <div className="size-full bg-black" />
+              <div className="size-full bg-bg" />
             )}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
             <div className="absolute bottom-[calc(max(12px,env(safe-area-inset-bottom))+92px)] left-4 right-20">
@@ -125,7 +125,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
 
       {/* Episode sheet */}
       {sheet && (
-        <div className="absolute inset-0 z-10 flex items-end bg-black/60" onClick={() => setSheet(false)}>
+        <div className="absolute inset-0 z-10 flex items-end bg-bg/60" onClick={() => setSheet(false)}>
           <div
             className="max-h-[70dvh] w-full overflow-y-auto rounded-t-2xl border-t border-stroke bg-surface p-4 pb-8"
             onClick={(e) => e.stopPropagation()}
@@ -141,7 +141,7 @@ export function ReelFeed({ titleId, slug, titleName, episodes, startNumber, pric
                     goTo(i);
                   }}
                   className={`relative grid h-11 place-items-center rounded-lg text-body-2 font-semibold ${
-                    i === active ? "bg-brand-500" : "bg-surface-2"
+                    i === active ? "bg-brand-500 text-on-brand" : "bg-surface-2"
                   }`}
                 >
                   {ep.number}
@@ -241,7 +241,7 @@ function ReelItem({
       />
       {paused && state.status === "ready" && !previewEnded && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <span className="grid size-16 place-items-center rounded-full bg-black/45 backdrop-blur-sm">
+          <span className="grid size-16 place-items-center rounded-full bg-bg/45 backdrop-blur-sm">
             <IconPlayLarge />
           </span>
         </div>
