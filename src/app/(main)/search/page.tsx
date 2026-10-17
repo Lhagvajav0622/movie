@@ -98,7 +98,7 @@ export default async function SearchPage({
           <SearchBox initial={q} />
         </Suspense>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
-          {chip("Бүгд", null)}
+          {chip("Бүх багц", null)}
           {genres.map((g) => chip(g, g))}
         </div>
       </div>
