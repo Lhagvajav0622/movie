@@ -66,3 +66,13 @@ export async function packageForCategory(name: string) {
   const rows = await listPackagesForSale();
   return rows.filter((r) => r.genreNames.includes(name)).sort((a, b) => a.priceMnt - b.priceMnt)[0] ?? null;
 }
+
+/** The cheapest on-sale package that unlocks one title (shown next to its "Худалдан авах" button). */
+export async function packageForTitle(t: { genres: string[]; adult?: boolean }) {
+  const rows = await listPackagesForSale();
+  return (
+    rows
+      .filter((r) => (r.allTitles && !t.adult) || r.genreNames.some((g) => t.genres.includes(g)))
+      .sort((a, b) => a.priceMnt - b.priceMnt)[0] ?? null
+  );
+}

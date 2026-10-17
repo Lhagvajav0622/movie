@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSession } from "@/server/auth";
+import { includesText, packageForTitle } from "@/server/packages";
 import { getTitleDetail, getTitleMeta, type TitleDetail } from "@/server/title";
 import { formatDuration } from "@/components/catalog/HeroBanner";
 import { BackBar, DetailTabs } from "@/components/catalog/DetailChrome";
@@ -130,15 +131,33 @@ export default async function TitlePage({
   const session = await getSession().catch(() => null);
   const t = await getTitleDetail(slug, session?.user.id);
   if (!t) notFound();
+  const pkg = t.priceMnt > 0 && !t.owned ? await packageForTitle(t).catch(() => null) : null;
   return (
     <>
       {t.adult && <AgeGate variant="overlay" />}
-      <TitleContent t={t} />
+      <TitleContent t={t} pkg={pkg} />
     </>
   );
 }
 
-function TitleContent({ t }: { t: TitleDetail }) {
+type Pkg = Awaited<ReturnType<typeof packageForTitle>> | null;
+
+function PackageBuy({ pkg, className }: { pkg: Pkg; className: string }) {
+  if (!pkg) return null;
+  return (
+    <BuyButton
+      packageId={pkg.id}
+      days={pkg.days}
+      label={`Багц · ${pkg.days} хоног`}
+      includes={includesText(pkg)}
+      priceMnt={pkg.priceMnt}
+      variant="outline"
+      className={className}
+    />
+  );
+}
+
+function TitleContent({ t, pkg }: { t: TitleDetail; pkg: Pkg }) {
   const firstEp = t.episodes[0]?.number ?? 1;
   const needsPurchase = t.priceMnt > 0 && !t.owned;
   const similar = t.similar.map((s) => ({ ...s, hue: s.hue }));
@@ -189,6 +208,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
                       className="h-[59px] px-6 text-[15px]"
                     />
                   )}
+                  {needsPurchase && <PackageBuy pkg={pkg} className="h-[59px] px-6 text-[15px]" />}
                 </div>
               </div>
             }
@@ -220,6 +240,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
                 className="h-11 w-full text-[13px]"
               />
             )}
+            {needsPurchase && <PackageBuy pkg={pkg} className="h-11 w-full text-[13px]" />}
             {t.type === "series" ? (
               <DetailTabs
                 tabs={[
@@ -299,6 +320,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
               className="h-11 w-full text-[13px]"
             />
           )}
+          {needsPurchase && <PackageBuy pkg={pkg} className="h-11 w-full text-[13px]" />}
           {t.type === "series" ? (
             <DetailTabs
               tabs={[
@@ -367,6 +389,7 @@ function TitleContent({ t }: { t: TitleDetail }) {
                   className="h-[59px] px-6 text-[15px]"
                 />
               )}
+              {needsPurchase && <PackageBuy pkg={pkg} className="h-[59px] px-6 text-[15px]" />}
             </div>
           </div>
         </section>

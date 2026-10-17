@@ -32,6 +32,7 @@ export function BuyButton({
   includes,
   priceMnt,
   className = "",
+  variant = "solid",
 }: {
   titleId?: string;
   /** Buy a category pass instead of one title */
@@ -42,6 +43,8 @@ export function BuyButton({
   includes?: string;
   priceMnt: number;
   className?: string;
+  /** "outline" is the quieter gold style used for the package button beside a title's buy button */
+  variant?: "solid" | "outline";
 }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>({ s: "choose" });
@@ -117,7 +120,11 @@ export function BuyButton({
           setOpen(true);
           void start("qpay");
         }}
-        className={`rounded-lg border-[1.5px] border-brand-100 bg-brand-50 font-semibold text-on-brand transition hover:bg-white ${className}`}
+        className={`rounded-lg border-[1.5px] font-semibold transition ${
+          variant === "outline"
+            ? "border-brand-400 bg-brand-500/15 text-brand-200 hover:bg-brand-500/25"
+            : "border-brand-100 bg-brand-50 text-on-brand hover:bg-white"
+        } ${className}`}
       >
         {packageId ? `${label ?? "Багц авах"}` : "Худалдан авах"} · {price}
       </button>
