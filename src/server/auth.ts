@@ -6,12 +6,13 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { headers } from "next/headers";
 import { db, schema } from "./db";
-import { sendSms, normalizeMnPhone } from "./sms";
+import { normalizeMnPhone, sendSmsAfterResponse, smsConfigured } from "./sms";
+import { otpMessage, resetMessage } from "./sms-callpro";
 import { reserveOtpSend } from "./otp-throttle";
 import { desc, eq } from "drizzle-orm";
 
-/** True while no SMS gateway is configured (codes are shown on screen). Set OTP_DEMO=0 to force off. */
-export const otpDemoMode = () => !process.env.SMS_API_URL && process.env.OTP_DEMO !== "0";
+/** True while no SMS gateway is configured (codes are shown on screen, so anyone can sign in as any phone). Set OTP_DEMO=0 to force off. */
+export const otpDemoMode = () => !smsConfigured() && process.env.OTP_DEMO !== "0";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -65,7 +66,7 @@ export const auth = betterAuth({
       if (wait) throw new APIError("TOO_MANY_REQUESTS", { code: "TOO_MANY_REQUESTS", message: `Retry in ${wait}s` });
     }),
     // Demo mode: until an SMS provider is configured, return the code in the response
-    // so testers can sign up. Turned off automatically once SMS_API_URL is set.
+    // so testers can sign up. Turned off automatically once an SMS provider is configured.
     after: createAuthMiddleware(async (ctx) => {
       if (!otpDemoMode()) return;
       const isSend = ctx.path === "/phone-number/send-otp";
@@ -91,10 +92,10 @@ export const auth = betterAuth({
       allowedAttempts: 3,
       phoneNumberValidator: (p) => normalizeMnPhone(p) !== null,
       sendOTP: ({ phoneNumber, code }) => {
-        void sendSms(phoneNumber, `Таны баталгаажуулах код: ${code}`);
+        sendSmsAfterResponse(phoneNumber, otpMessage(code));
       },
       sendPasswordResetOTP: ({ phoneNumber, code }) => {
-        void sendSms(phoneNumber, `Нууц үг сэргээх код: ${code}`);
+        sendSmsAfterResponse(phoneNumber, resetMessage(code));
       },
       signUpOnVerification: {
         getTempEmail: (p) => `${p.replace(/\D/g, "")}@phone.mhub.local`,

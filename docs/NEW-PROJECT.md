@@ -80,13 +80,20 @@ Do this before any user or video exists. Search with `git grep -n -i "mhub\|kino
 First admin: sign up on the site once, then promote that phone with `npm run db:seed -- --admin +976XXXXXXXX`
 (or list it in `ADMIN_PHONES`).
 
-## 6. SMS / OTP: not finished in the old project either
+## 6. SMS / OTP (CallPro Text)
 
-`otpDemoMode()` in `src/server/auth.ts` is true when `SMS_API_URL` is empty and `OTP_DEMO` is not `"0"`. In
-demo mode the API returns the code (`devCode`), so **anyone can sign in as any phone, admins included**.
-Do not share the link publicly until a real SMS sender is wired in and demo mode is off. CallPro Text
-(Bundle 2 includes "API Integration") was chosen but its API documentation had not arrived (support
-ticket pending). SMS text must be short: Cyrillic is 70 characters per segment.
+Code: `src/server/sms.ts` (sender, `smsConfigured()`), `src/server/sms-callpro.ts` (API client + tests),
+wired into Better Auth in `src/server/auth.ts`. Set in Vercel: `SMS_PROVIDER=callpro`, `SMS_API_KEY` (Secret),
+`SMS_SENDER` (the line number CallPro assigns), and **`OTP_DEMO=0`**.
+
+`otpDemoMode()` is true when no gateway is configured and `OTP_DEMO` is not `"0"`: then the API returns the code
+(`devCode`) and **anyone can sign in as any phone, admins included**. Never leave production in that state.
+
+CallPro facts: Bundle 2 includes API Integration (ask support to enable it and send the doc, key and line number).
+REST `https://api-text.callpro.mn/v1/sms/send`, header `x-api-key`, body `{from, to, text}`. No sender name, only the
+number, so the brand goes in the text. Cyrillic is 70 characters per segment. The doc lists CallPro IP addresses
+(202.37.235.51-53); Vercel has no fixed outgoing IP, so if CallPro enforces an allowlist, ask them to lift it.
+Per-operator daily quota (Skytel, Mobicom, Unitel) is shown on the CallPro dashboard (e.g. 0/500): raise it before launch.
 
 ## 7. Verify
 
