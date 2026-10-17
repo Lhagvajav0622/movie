@@ -112,7 +112,7 @@ export default async function SearchPage({
             className="flex items-center justify-between gap-3 rounded-2xl border border-brand-300/50 bg-brand-500/10 px-4 py-3"
           >
             <span className="text-body-2">
-              <b>{pkg.name}</b> багц: {pkg.days} хоног, бүх кино
+              <b>{pkg.name}</b> · {pkg.days} хоног · энэ ангиллын бүх кино
             </span>
             <span className="shrink-0 text-body-2 font-semibold text-brand-300">{pkg.priceMnt.toLocaleString("mn-MN")}₮ →</span>
           </Link>

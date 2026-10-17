@@ -22,7 +22,7 @@ export async function hasTitleAccess(
       .where(eq(userAccess.userId, userId))
       .limit(1),
     // A running category pass covers the title when it matches one of the title's categories,
-    // or when it is "Бүх багц" (every title except +18).
+    // or when it is an all-titles pass (every title except +18).
     db.execute<{ ok: number }>(sql`
       select 1 as ok
       from package_subs ps
@@ -30,8 +30,12 @@ export async function hasTitleAccess(
       where ps.user_id = ${userId}
         and ps.expires_at > now()
         and (
-          (pk.genre_id is null and not exists (select 1 from titles t where t.id = ${titleId} and t.is_adult))
-          or pk.genre_id in (select genre_id from title_genres where title_id = ${titleId})
+          (pk.all_titles and not exists (select 1 from titles t where t.id = ${titleId} and t.is_adult))
+          or exists (
+            select 1 from package_genres pg
+            join title_genres tg on tg.genre_id = pg.genre_id
+            where pg.package_id = pk.id and tg.title_id = ${titleId}
+          )
         )
       limit 1`),
   ]);

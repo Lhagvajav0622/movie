@@ -6,7 +6,7 @@ import { generateOrderCode } from "./order-code";
 import { providerFor, type PayMethod } from "./payments";
 import type { Invoice } from "./payments/types";
 
-const { orders, purchases, titles, packages, packageSubs, genres } = schema;
+const { orders, purchases, titles, packages, packageSubs } = schema;
 
 export type CreateOrderResult =
   | { ok: true; order: typeof orders.$inferSelect; invoice: Invoice }
@@ -58,17 +58,16 @@ export async function createOrder(userId: string, titleId: string, method: PayMe
 /** Buy a category pass (limited days). The price and length come from the DB. */
 export async function createPackageOrder(userId: string, packageId: string, method: PayMethod): Promise<CreateOrderResult> {
   const [p] = await db
-    .select({ id: packages.id, priceMnt: packages.priceMnt, days: packages.days, genreName: genres.nameMn })
+    .select({ id: packages.id, name: packages.name, priceMnt: packages.priceMnt, days: packages.days, active: packages.active })
     .from(packages)
-    .leftJoin(genres, eq(genres.id, packages.genreId))
     .where(eq(packages.id, packageId))
     .limit(1);
-  if (!p || p.priceMnt <= 0) return { ok: false, code: "NOT_FOUND" };
+  if (!p || !p.active || p.priceMnt <= 0) return { ok: false, code: "NOT_FOUND" };
 
   const provider = providerFor(method);
   if (!provider.available()) return { ok: false, code: "UNAVAILABLE" };
   const code = generateOrderCode();
-  const name = `${p.genreName ?? "Бүх багц"} · ${p.days} хоног`;
+  const name = `${p.name} · ${p.days} хоног`;
   let invoice: Invoice;
   try {
     invoice = await provider.createInvoice({ code, amountMnt: p.priceMnt, description: name });
@@ -145,14 +144,13 @@ export async function listOrdersAdmin(limit = 100) {
       isTest: orders.isTest,
       createdAt: orders.createdAt,
       paidAt: orders.paidAt,
-      titleName: sql<string>`coalesce(${titles.name}, 'Багц: ' || coalesce(${genres.nameMn}, 'Бүх багц'))`,
+      titleName: sql<string>`coalesce(${titles.name}, 'Багц: ' || ${packages.name})`,
       userName: schema.user.name,
       userPhone: schema.user.phoneNumber,
     })
     .from(orders)
     .leftJoin(titles, eq(titles.id, orders.titleId))
     .leftJoin(packages, eq(packages.id, orders.packageId))
-    .leftJoin(genres, eq(genres.id, packages.genreId))
     .innerJoin(schema.user, eq(schema.user.id, orders.userId))
     .orderBy(desc(orders.createdAt))
     .limit(limit);

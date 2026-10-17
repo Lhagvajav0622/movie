@@ -1,71 +1,68 @@
 import "server-only";
-import { and, asc, eq, gt, isNull } from "drizzle-orm";
+import { and, asc, eq, gt, inArray } from "drizzle-orm";
 import { db, schema } from "./db";
 
-const { packages, packageSubs, genres } = schema;
+const { packages, packageGenres, packageSubs, genres } = schema;
 
-export type PackageRow = {
-  id: string | null;
-  genreId: string | null;
+export type PackageInfo = {
+  id: string;
   name: string;
-  slug: string;
+  badge: string | null;
+  description: string | null;
   priceMnt: number;
+  oldPriceMnt: number | null;
   days: number;
+  highlighted: boolean;
+  allTitles: boolean;
+  active: boolean;
+  sortOrder: number;
+  /** ids and names of the categories the package unlocks (empty when allTitles only) */
+  genreIds: string[];
+  genreNames: string[];
 };
 
-/** Every package slot for the admin: "Бүх багц" first, then one per category (price 0 = not on sale). */
-export async function listPackagesAdmin(): Promise<PackageRow[]> {
-  const [all, cats] = await Promise.all([
-    db.select().from(packages).where(isNull(packages.genreId)).limit(1),
+/** Every package with its categories, in display order. */
+export async function listPackagesAdmin(): Promise<PackageInfo[]> {
+  const [pk, links] = await Promise.all([
+    db.select().from(packages).orderBy(asc(packages.sortOrder), asc(packages.createdAt)),
     db
-      .select({
-        genreId: genres.id,
-        name: genres.nameMn,
-        slug: genres.slug,
-        id: packages.id,
-        priceMnt: packages.priceMnt,
-        days: packages.days,
-      })
-      .from(genres)
-      .leftJoin(packages, eq(packages.genreId, genres.id))
+      .select({ packageId: packageGenres.packageId, id: genres.id, name: genres.nameMn, sort: genres.sortOrder })
+      .from(packageGenres)
+      .innerJoin(genres, eq(genres.id, packageGenres.genreId))
       .orderBy(asc(genres.sortOrder), asc(genres.nameMn)),
   ]);
-  return [
-    {
-      id: all[0]?.id ?? null,
-      genreId: null,
-      name: "Бүх багц",
-      slug: "all",
-      priceMnt: all[0]?.priceMnt ?? 0,
-      days: all[0]?.days ?? 30,
-    },
-    ...cats.map((c) => ({
-      id: c.id ?? null,
-      genreId: c.genreId,
-      name: c.name,
-      slug: c.slug,
-      priceMnt: c.priceMnt ?? 0,
-      days: c.days ?? 30,
-    })),
-  ];
+  return pk.map((p) => {
+    const mine = links.filter((l) => l.packageId === p.id);
+    return { ...p, genreIds: mine.map((l) => l.id), genreNames: mine.map((l) => l.name) };
+  });
 }
 
-/** Packages on sale (price > 0), with this user's pass end date when they have one. */
+/** Names shown to buyers: "Бүх кино" and/or the category names. */
+export const includesText = (p: Pick<PackageInfo, "allTitles" | "genreNames">) =>
+  [...(p.allTitles ? ["Бүх кино (+18-аас бусад)"] : []), ...p.genreNames].join(", ");
+
+/** Packages on sale (active, price > 0), with this user's pass end date when they have one. */
 export async function listPackagesForSale(userId?: string) {
-  const rows = await listPackagesAdmin();
-  const onSale = rows.filter((r) => r.id && r.priceMnt > 0);
-  const subs = userId
-    ? await db
-        .select({ packageId: packageSubs.packageId, expiresAt: packageSubs.expiresAt })
-        .from(packageSubs)
-        .where(and(eq(packageSubs.userId, userId), gt(packageSubs.expiresAt, new Date())))
-    : [];
+  const onSale = (await listPackagesAdmin()).filter((p) => p.active && p.priceMnt > 0);
+  const subs =
+    userId && onSale.length
+      ? await db
+          .select({ packageId: packageSubs.packageId, expiresAt: packageSubs.expiresAt })
+          .from(packageSubs)
+          .where(
+            and(
+              eq(packageSubs.userId, userId),
+              gt(packageSubs.expiresAt, new Date()),
+              inArray(packageSubs.packageId, onSale.map((p) => p.id)),
+            ),
+          )
+      : [];
   const until = new Map(subs.map((s) => [s.packageId, s.expiresAt]));
-  return onSale.map((r) => ({ ...r, id: r.id!, activeUntil: until.get(r.id!) ?? null }));
+  return onSale.map((p) => ({ ...p, activeUntil: until.get(p.id) ?? null }));
 }
 
-/** The on-sale package for one category name (for the banner on a category page). */
+/** The cheapest on-sale package that includes one category (banner on a category page). */
 export async function packageForCategory(name: string) {
   const rows = await listPackagesForSale();
-  return rows.find((r) => r.name === name) ?? null;
+  return rows.filter((r) => r.genreNames.includes(name)).sort((a, b) => a.priceMnt - b.priceMnt)[0] ?? null;
 }

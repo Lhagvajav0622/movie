@@ -29,6 +29,7 @@ export function BuyButton({
   packageId,
   days,
   label,
+  includes,
   priceMnt,
   className = "",
 }: {
@@ -37,6 +38,8 @@ export function BuyButton({
   packageId?: string;
   days?: number;
   label?: string;
+  /** Names of the categories the package unlocks, shown in the checkout */
+  includes?: string;
   priceMnt: number;
   className?: string;
 }) {
@@ -132,6 +135,12 @@ export function BuyButton({
                 ? `${label === "Сунгах" ? "Сунгах" : "Багц"} · ${days ?? 30} хоногийн эрх · ${price}`
                 : `Нэг удаа ${price}, хугацаагүй үзнэ`}
             </p>
+            {packageId && includes && (
+              <p className="mt-2 rounded-lg bg-surface-2 px-3 py-2 text-body-2">
+                <span className="text-fg-muted">Багтсан: </span>
+                {includes}
+              </p>
+            )}
 
             {step.s === "creating" && <p className="mt-4 text-body-2 text-fg-muted">Төлбөр бэлдэж байна…</p>}
 

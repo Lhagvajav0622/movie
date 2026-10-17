@@ -238,18 +238,38 @@ export const orderStatus = pgEnum("order_status", [
 export const purchaseSource = pgEnum("purchase_source", ["order", "admin"]);
 
 /**
- * A sellable pass. genreId = a category (all its titles); null = "Бүх багц" (every title except +18).
- * priceMnt 0 = not on sale. Prices and days are set by the admin.
+ * A sellable pass built by the admin: a name, a price and length, and the categories it unlocks
+ * (package_genres). allTitles = every title except +18. active + priceMnt > 0 = on sale.
  */
 export const packages = pgTable("packages", {
   id: uuid("id").primaryKey().defaultRandom(),
-  genreId: uuid("genre_id")
-    .unique()
-    .references(() => genres.id, { onDelete: "cascade" }),
+  name: text("name").notNull().default(""),
+  /** Small label on the card, e.g. "Эрэлттэй" */
+  badge: text("badge"),
+  description: text("description"),
   priceMnt: integer("price_mnt").notNull().default(0),
+  /** Struck-through "before" price shown next to the price */
+  oldPriceMnt: integer("old_price_mnt"),
   days: integer("days").notNull().default(30),
+  highlighted: boolean("highlighted").notNull().default(false),
+  allTitles: boolean("all_titles").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const packageGenres = pgTable(
+  "package_genres",
+  {
+    packageId: uuid("package_id")
+      .notNull()
+      .references(() => packages.id, { onDelete: "cascade" }),
+    genreId: uuid("genre_id")
+      .notNull()
+      .references(() => genres.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.packageId, t.genreId] })],
+);
 
 export const orders = pgTable(
   "orders",
