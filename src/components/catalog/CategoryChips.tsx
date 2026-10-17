@@ -20,3 +20,18 @@ export function CategoryChips({ categories, className = "" }: { categories: stri
     </nav>
   );
 }
+
+/** Prominent "buy a package" strip, shown only when at least one package is on sale. */
+export function PackageBanner({ fromMnt, className = "" }: { fromMnt: number; className?: string }) {
+  return (
+    <Link
+      href="/packages"
+      className={`flex items-center justify-between gap-3 rounded-2xl border border-brand-300/60 bg-brand-500/10 px-4 py-3 ${className}`}
+    >
+      <span className="text-body-2">
+        <b className="text-brand-300">Багц авах</b> · ангилал бүрийн бүх киног хугацаанд нь үзээрэй
+      </span>
+      <span className="shrink-0 text-body-2 font-semibold text-brand-300">{fromMnt.toLocaleString("mn-MN")}₮-өөс →</span>
+    </Link>
+  );
+}

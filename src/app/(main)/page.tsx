@@ -2,7 +2,8 @@ import { FeatureBanner } from "@/components/catalog/HeroBanner";
 import { HeroSlider } from "@/components/catalog/HeroSlider";
 import { GenreSection } from "@/components/catalog/GenreSection";
 import { HeroCarousel, MobileTopBar, RecommendedGrid, StarredCard, Top10Row } from "@/components/catalog/MobileHome";
-import { CategoryChips } from "@/components/catalog/CategoryChips";
+import { CategoryChips, PackageBanner } from "@/components/catalog/CategoryChips";
+import { listPackagesForSale } from "@/server/packages";
 import { getNavCategories } from "@/server/categories";
 import { TitleRow } from "@/components/catalog/TitleRow";
 import { getHomeData } from "@/server/home";
@@ -13,9 +14,10 @@ export default async function HomePage() {
   // Everything the page needs is fetched at the same time (each query is a round trip to the database).
   const session = await getSession().catch(() => null);
   const uid = session?.user.id;
-  const [{ items: everything, genres: allGenres }, navCategories, history, saved] = await Promise.all([
+  const [{ items: everything, genres: allGenres }, navCategories, packs, history, saved] = await Promise.all([
     getHomeData(),
     getNavCategories(),
+    listPackagesForSale().catch(() => []),
     uid ? listHistory(uid, 10).catch(() => []) : Promise.resolve([]),
     uid ? listSaved(uid).catch(() => []) : Promise.resolve([]),
   ]);
@@ -34,6 +36,7 @@ export default async function HomePage() {
     priceMnt: h.priceMnt,
     adult: h.adult,
   }));
+  const fromMnt = packs.length ? Math.min(...packs.map((p) => p.priceMnt)) : 0;
   const featuredFirst = [...all].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
   const latest = all; // already newest first
   const series = all.filter((t) => t.vertical);
@@ -48,6 +51,7 @@ export default async function HomePage() {
           <MobileTopBar />
         </div>
         <CategoryChips categories={navCategories} className="-mx-4 px-4" />
+        {fromMnt > 0 && <PackageBanner fromMnt={fromMnt} />}
         <div className="-mx-4">
           <HeroCarousel items={featuredFirst.slice(0, 4)} />
         </div>
@@ -68,6 +72,7 @@ export default async function HomePage() {
       {/* Desktop (Figma "Home", 1440 wide, 1088 content) */}
       <div className="mx-auto hidden max-w-[1120px] flex-col gap-10 px-4 pt-6 md:flex">
         <CategoryChips categories={navCategories} />
+        {fromMnt > 0 && <PackageBanner fromMnt={fromMnt} />}
         <HeroSlider items={featuredFirst.slice(0, 5)} savedSlugs={savedSlugs} />
         {continueItems.length > 0 && <TitleRow title="Үргэлжлүүлэн үзэх" href="/history" items={continueItems} />}
         <TitleRow title="Онцлох бүтээлүүд" href="/search" items={featuredFirst.slice(0, 10)} />
