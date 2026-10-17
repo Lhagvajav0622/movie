@@ -18,10 +18,7 @@ type Step =
   | { s: "paying" }
   | { s: "done" };
 
-const METHODS: { id: Method; label: string }[] = [
-  { id: "qpay", label: "QPay" },
-  { id: "socialpay", label: "SocialPay" },
-];
+// QPay's QR and bank list already include SocialPay, Khan, State bank and the rest, so there is one method.
 
 /**
  * "Худалдан авах" button + checkout modal. Talks to /api/orders; in test mode (PAYMENT_MODE=test)
@@ -113,7 +110,10 @@ export function BuyButton({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          void start("qpay");
+        }}
         className={`rounded-lg border-[1.5px] border-brand-100 bg-brand-50 font-semibold text-on-brand transition hover:bg-white ${className}`}
       >
         {packageId ? `${label ?? "Багц авах"}` : "Худалдан авах"} · {price}
@@ -127,32 +127,24 @@ export function BuyButton({
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-h4 font-bold">Худалдан авах</h2>
+            <p className="mt-1 text-body-2 text-fg-muted">
+              {packageId
+                ? `${label === "Сунгах" ? "Сунгах" : "Багц"} · ${days ?? 30} хоногийн эрх · ${price}`
+                : `Нэг удаа ${price}, хугацаагүй үзнэ`}
+            </p>
 
-            {(step.s === "choose" || step.s === "creating") && (
+            {step.s === "creating" && <p className="mt-4 text-body-2 text-fg-muted">Төлбөр бэлдэж байна…</p>}
+
+            {step.s === "choose" && (
               <>
-                <p className="mt-2 text-body-2 text-fg-muted">
-                  {packageId
-                    ? `${price} төлөөд ${days ?? 30} хоногийн турш энэ багцын бүх киног хязгааргүй үзнэ.`
-                    : `Нэг удаа ${price} төлөөд энэ киног хугацаагүй, хэдэн ч удаа үзнэ.`}
-                </p>
-                <p className="mt-4 text-body-2 font-semibold">Төлбөрийн хэлбэр</p>
-                <div className="mt-2 flex flex-col gap-2">
-                  {METHODS.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      disabled={step.s === "creating"}
-                      onClick={() => start(m.id)}
-                      className="flex h-12 items-center justify-between rounded-lg border border-stroke px-4 text-body-2 font-semibold transition hover:border-brand-500 disabled:opacity-50"
-                    >
-                      <span>{m.label}</span>
-                      <span className="text-fg-muted">
-                        {step.s === "creating" && step.method === m.id ? "…" : price}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                {error && <p className="mt-3 text-body-2 text-red-400">{error}</p>}
+                <p className="mt-3 text-body-2 text-red-400">{error ?? "Захиалга үүсгэж чадсангүй."}</p>
+                <button
+                  type="button"
+                  onClick={() => start("qpay")}
+                  className="mt-4 h-11 w-full rounded-lg bg-brand-500 text-on-brand text-body-2 font-semibold hover:bg-brand-400"
+                >
+                  Дахин оролдох
+                </button>
               </>
             )}
 
